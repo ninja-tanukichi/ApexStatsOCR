@@ -21,7 +21,8 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | --- | --- |
 | [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
 | [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義 |
-| [apex_dashboard_v3.html](apex_dashboard_v3.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
+| [apex_dashboard.html](apex_dashboard.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
+| [version.js](version.js) | `apex_dashboard.html`が表示するバージョン情報(`DASHBOARD_VERSION`/`CSV_SCHEMA_VERSION`)。ダッシュボード本体のソースにバージョンを埋め込まないよう分離している |
 | `input/` | OCR対象のスクリーンショット(`シーズン番号.png`)を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**(`.gitkeep`のみ管理) |
 | `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
 | `debug/` | OCR時に切り出した各領域の画像が項目名ごとに保存される(`config.json`の座標調整用)。**列名ごとに1枚のみ保持され、複数画像を一括処理すると最後に処理した画像の分で上書きされるため、特定シーズンの調査には使えない**。**`.gitignore`済み** |
@@ -64,7 +65,7 @@ pip install -r requirements.txt
 
 ### 3. ダッシュボード表示
 
-1. `apex_dashboard_v3.html` を起動
+1. `apex_dashboard.html` を起動
 2. 画面上部のファイル選択ボタンをクリック
 3. `\ApexStatsOCR\output\apex_stats.csv` を選択
 4. 各種スタッツを表示
@@ -126,7 +127,7 @@ pytest tests/
 
 ### バージョン管理
 
-変更は `CHANGELOG.md`(Keep a Changelog形式)への追記と、SemVerに従ったgitタグ(`git tag -a vX.Y.Z`)をセットで行ってください。
+変更は `CHANGELOG.md`(Keep a Changelog形式)への追記と、SemVerに従ったgitタグ(`git tag -a vX.Y.Z`)をセットで行ってください。プロジェクトのバージョンを上げた場合は、[version.js](version.js) の `DASHBOARD_VERSION` も合わせて更新してください(`CSV_SCHEMA_VERSION` は `config.json` の `regions` の列構成が変わった時のみ更新)。
 
 ## ライセンス
 

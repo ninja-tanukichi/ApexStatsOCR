@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-08-30
+
+### Changed
+
+- `apex_dashboard_v3.html` を `apex_dashboard.html` にリネーム。ファイル名にバージョン番号を
+  埋め込む方式をやめ、プロジェクト全体のバージョン管理(CHANGELOG.md/gitタグ)に一本化した
+- ダッシュボード内に静的に書かれていた `Version 1.0.0` / `Build 2026-06-12` の表示を廃止し、
+  新設した `version.js`(`DASHBOARD_VERSION`, `CSV_SCHEMA_VERSION`)から`<script src>`経由で
+  読み込むように変更。`fetch()`は`file://`で開くとCORSでブロックされるため使えず、
+  `<script src>`によるローカルJS読み込みで回避した。ファイル選択の追加や、ダッシュボード表示手順
+  (ダブルクリックで開くだけ)の変更は不要
+- `config.json` の未使用フィールド `"version": "3.0"` を削除(`main.py`のどこからも参照されておらず、
+  上記のバージョン整理と無関係に孤立していたため)
+
 ## [1.9.0] - 2026-08-30
 
 ### Added
@@ -161,7 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.6.0...v1.7.0
