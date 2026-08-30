@@ -70,3 +70,7 @@ pip install -r requirements.txt
 ## ライセンス
 
 [MIT License](LICENSE)
+
+## 変更履歴
+
+[CHANGELOG.md](CHANGELOG.md) を参照。バージョンは [Semantic Versioning](https://semver.org/) に従う。
