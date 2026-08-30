@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-30
+
+### Added
+
+- `main.py`: 統計的外れ値として検出した値について、10・100・1000で割った候補のうち統計的に妥当な
+  範囲へ収まる最初の値を「修正候補」として`ocr.log`に併記するようにした（`suggest_correction`）。
+  小数点の桁がOCRでずれるケース（例: `0.44`が`44`と誤読される）を想定したヒューリスティックであり、
+  正しさは保証されない。CSVは自動修正せず、目視確認を前提とする。「要目視確認」の注記はサマリ行
+  （`異常値検出: N件の疑わしい値を検出しました`）の末尾へ1回だけ出力し、各異常値の行は
+  修正候補の値（`修正候補: <値>`）を出力するところまでとした
+  - 実データ検証: 既知の3件の異常値（`season_kdr=44.0`→`0.44`、`season_damage_avg=1431.4`→`143.14`、
+    `season_damage_avg=32208.0`→`322.08`）に対し、事前に手計算した推定値と完全に一致する候補を出力した
+- `tests/test_anomaly_detection.py`を追加（`suggest_correction`・`detect_statistical_outliers`の単体テスト）
+
+### Documentation
+
+- README.mdに修正候補の仕組みと出力例を追記
+
 ## [1.3.0] - 2026-08-30
 
 ### Added
@@ -86,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...v1.1.0

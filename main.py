@@ -365,6 +365,19 @@ def detect_monotonicity_anomalies(df, columns):
 DEFAULT_MAD_Z_THRESHOLD = 3.5
 MIN_SAMPLES_FOR_STATS = 4
 
+# 小数点の桁がOCRでずれる（例: "0.44"が"44"と読まれる）ケースを想定した
+# 修正候補の探索範囲。桁が小さい順に試し、統計的に妥当になる最初の候補を採用する
+CORRECTION_DIVISORS = (10, 100, 1000)
+
+
+def suggest_correction(value, median, mad, threshold):
+    for divisor in CORRECTION_DIVISORS:
+        candidate = value / divisor
+        z = 0.6745 * (candidate - median) / mad
+        if abs(z) <= threshold:
+            return candidate, divisor
+    return None, None
+
 
 def detect_statistical_outliers(df, columns, threshold):
     anomalies = []
@@ -390,12 +403,19 @@ def detect_statistical_outliers(df, columns, threshold):
 
         for idx, z, value in zip(idxs, modified_z, values):
             if abs(z) > threshold:
+                detail = f"中央値={median:.2f}から外れ値（修正z-score={z:.2f}）"
+
+                suggestion, _ = suggest_correction(value, median, mad, threshold)
+                if suggestion is not None:
+                    detail += f" / 修正候補: {suggestion:g}"
+
                 anomalies.append({
                     "season": df.at[idx, "season"],
                     "column": col,
                     "value": value,
                     "rule": "statistical_outlier",
-                    "detail": f"中央値={median:.2f}から外れ値（修正z-score={z:.2f}）",
+                    "detail": detail,
+                    "suggested_value": suggestion,
                 })
     return anomalies
 
@@ -421,7 +441,7 @@ def validate_anomalies(df, regions, anomaly_config, logger):
         logger.info("異常値検出: 問題ありません")
         return anomalies
 
-    logger.warning("異常値検出: %d件の疑わしい値を検出しました", len(anomalies))
+    logger.warning("異常値検出: %d件の疑わしい値を検出しました（要目視確認）", len(anomalies))
     for a in anomalies:
         logger.warning(
             "  season=%s column=%s value=%s rule=%s detail=%s",
