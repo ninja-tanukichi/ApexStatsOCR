@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-08-30
+
+### Added
+
+- READMEに「Contributing」セクションを追加(開発環境、PR前の確認事項、設計方針、バージョン管理の運用)
+
+### Changed
+
+- 「動作要件」内の箇条書きの文体を統一(太字見出し+コロン形式を廃し、前半の平文スタイルに統一)
+
+### Removed
+
+- 「リポジトリの配置パスにASCII文字のみを使う」の記載を削除。既に`v1.0.1`で修正済みの過去の不具合であり、
+  「動作要件(＝現在有効な制約)」に過去の話を残すのは読者を混乱させるため
+
 ## [1.8.0] - 2026-08-30
 
 ### Changed
@@ -146,7 +161,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.5.0...v1.6.0
