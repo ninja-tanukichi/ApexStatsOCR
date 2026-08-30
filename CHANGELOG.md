@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-08-30
+
+### Changed
+
+- `docs/images/`から`generate_demo_stats.py`/`demo_apex_stats.csv`を`docs/demo-data/`へ移動。
+  `docs/images/`には画像ファイルのみが置かれるように整理した
+
 ## [1.13.0] - 2026-08-30
 
 ### Added
@@ -198,7 +205,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...v1.11.0

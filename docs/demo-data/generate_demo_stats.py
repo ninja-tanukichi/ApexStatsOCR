@@ -6,7 +6,7 @@ season_*は乱数で生成し、career_*はseason_*を シーズン10以前の�
 算出するため、値同士の整合性(単調増加等)は実データと同様に保たれる。
 
 実行方法:
-    python docs/images/generate_demo_stats.py
+    python docs/demo-data/generate_demo_stats.py
 """
 import os
 
