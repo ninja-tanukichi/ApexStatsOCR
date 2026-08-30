@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-08-30
+
+### Added
+
+- Contributingに、READMEのスクリーンショット用デモデータを更新したい場合は
+  `docs/demo-data/generate_demo_stats.py` で架空データを生成できる旨を追記。
+  必須のPRチェック項目ではなく、参考情報として独立した一文にした
+
 ## [1.14.0] - 2026-08-30
 
 ### Changed
@@ -205,7 +213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...v1.12.0

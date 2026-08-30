@@ -137,6 +137,8 @@ pytest tests/
 - `config.json` の `regions` を変更した場合は `python tests/fixtures/generate_sample.py` でサンプル画像・期待値を再生成する
 - 個人の成績スクリーンショット・実データのCSVをコミットに含めない(`.gitignore`で除外済みだが念のため)
 
+READMEの[スクリーンショット](#スクリーンショット)用のデモデータを更新したい場合は、`python docs/demo-data/generate_demo_stats.py` で架空データを生成できる(実データは使わないこと)。
+
 ### 設計方針
 
 - オフライン実行の特性を維持する(EasyOCRの初回モデルダウンロード以外は新規のネットワーク依存を持ち込まない)
