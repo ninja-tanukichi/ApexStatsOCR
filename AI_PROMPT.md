@@ -38,18 +38,14 @@ Apex Legendsの成績画面スクリーンショットをOCRしてCSV化する�
    - `ERROR` ログ（例: `領域エラー`, `画像読込失敗`）が出ていないか確認する
    - 出ていた場合、対象画像ファイル名と項目名を記録する
 
-3. 生成された `output/apex_stats.csv` を読み込み、以下を検証する
+3. `ocr.log` 末尾の `異常値検出` の `WARNING` ログを確認する
+   - `main.py` は出力後に自動で型チェック・累積値の単調性チェック・統計的外れ値検知（MADベースの
+     修正z-score、閾値は `config.json` の `anomaly_detection.mad_z_threshold`）を行い、
+     疑わしい値があれば `season=... column=... value=... rule=... detail=...` の形式で警告する
+   - `異常値検出: 問題ありません` であれば4は不要
 
-   - **列構成**: `season` + `config.json` の `regions` キー一覧（`career_*` / `season_*`）と一致しているか
-   - **型**: 数値であるべき列（`*_games`, `*_wins`, `*_kills`, `*_damage*`, `*_kdr` 等）に、OCR変換失敗による
-     文字列（`convert_value` が数値変換できなかった生テキスト）が混入していないか
-   - **累積値の単調性**: `career_*` 系はシーズンをまたいだ累積スタッツのため、`season` 昇順で並べたとき
-     単調非減少（前シーズン以下に減っていない）になっているか
-   - **妥当な値域**: `career_kdr` / `season_kdr` が概ね 0〜10 程度に収まっているか、
-     `season_games` に対して `season_wins` / `season_top5` が明らかに大きすぎないか等、常識的な範囲か
-
-4. 異常（型不一致・逆行・外れ値）を検出した場合
-   - 該当項目名に対応する `debug/<列名>.png`（例: `debug/season_kdr.png`）を確認し、
+4. 異常（`rule=type` / `monotonicity` / `statistical_outlier`）が検出された場合
+   - 該当列名に対応する `debug/<列名>.png`（例: `debug/season_kdr.png`）を確認し、
      OCR切り出し領域のズレ・文字潰れ・解像度不足がないか調べる
    - 原因が座標ズレと判断できる場合は `config.json` の `regions` 座標、または `ocr.resize_scale` を
      調整し、再度 `python main.py` を実行して改善したか確認する

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-30
+
+### Added
+
+- `main.py`: CSV出力後に異常値を自動検出する機能を追加
+  - 型チェック（全列）: OCR変換失敗による文字列残留を検出
+  - 単調性チェック（`career_*`の累積カウンタ列）: シーズン順で値が減少していないか検証
+  - 統計的外れ値検知（`season_*`列）: 中央値絶対偏差（MAD）ベースの修正z-score（閾値3.5、
+    [Iglewicz & Hoaglin, 1993](https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm)）
+  - 検出結果は`ocr.log`へ`WARNING`として出力。ネットワーク通信は行わず、既存のオフライン実行特性を維持
+- `config.json`: `anomaly_detection.mad_z_threshold` を追加（既定値3.5）
+- 実データ検証により、過去に見逃していた`season=10`の`season_damage_avg=32208.0`という
+  外れ値を新たに検出（修正z-score=390.17）
+
+### Changed
+
+- README.md / AI_PROMPT.mdを自動異常値検出の仕様に合わせて更新
+- `requirements.txt`にnumpyを明示的に追加（`main.py`が直接importするため）
+
 ## [1.0.1] - 2026-08-30
 
 ### Fixed
@@ -38,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/releases/tag/v1.0.0

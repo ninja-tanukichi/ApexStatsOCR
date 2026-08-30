@@ -14,6 +14,10 @@
     "threshold": 170
   },
 
+  "anomaly_detection": {
+    "mad_z_threshold": 3.5
+  },
+
   "regions": {
 
     "career_games": [680, 305, 825, 350],

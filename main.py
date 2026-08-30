@@ -277,6 +277,136 @@ def save_csv(rows, output_file, columns, logger):
     return df
 
 
+# =========================
+# 異常値検出
+# =========================
+# career_kdr / career_damage_avg 等の比率列は、キャリブレーション上の
+# 「その時点までの累計」であり単調増加を保証できないため単調性チェックの対象外とする
+RATIO_SUFFIXES = ("_kdr", "_avg")
+
+
+def is_ratio_column(name):
+    return name.endswith(RATIO_SUFFIXES)
+
+
+def to_number(value):
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    return None
+
+
+def detect_type_anomalies(df, columns):
+    anomalies = []
+    for col in columns:
+        for idx, value in df[col].items():
+            if to_number(value) is None:
+                anomalies.append({
+                    "season": df.at[idx, "season"],
+                    "column": col,
+                    "value": value,
+                    "rule": "type",
+                    "detail": "OCR結果が数値に変換できていません",
+                })
+    return anomalies
+
+
+def detect_monotonicity_anomalies(df, columns):
+    anomalies = []
+    season_num = pd.to_numeric(df["season"], errors="coerce")
+    ordered = df.assign(_season_num=season_num).sort_values("_season_num")
+
+    for col in columns:
+        prev_value = None
+        prev_season = None
+        for _, row in ordered.iterrows():
+            value = to_number(row[col])
+            if value is None:
+                continue
+            if prev_value is not None and value < prev_value:
+                anomalies.append({
+                    "season": row["season"],
+                    "column": col,
+                    "value": value,
+                    "rule": "monotonicity",
+                    "detail": f"season {prev_season}の値({prev_value})より減少しています（累積値のため通常は減らない）",
+                })
+            prev_value = value
+            prev_season = row["season"]
+    return anomalies
+
+
+# Iglewicz & Hoaglin (1993) の推奨値。中央値絶対偏差(MAD)ベースの
+# 修正z-scoreにより、固定の値域を決め打ちせずデータのばらつきから外れ値を判定する
+DEFAULT_MAD_Z_THRESHOLD = 3.5
+MIN_SAMPLES_FOR_STATS = 4
+
+
+def detect_statistical_outliers(df, columns, threshold):
+    anomalies = []
+    for col in columns:
+        idxs, values = [], []
+        for idx, raw in df[col].items():
+            value = to_number(raw)
+            if value is not None:
+                idxs.append(idx)
+                values.append(value)
+
+        if len(values) < MIN_SAMPLES_FOR_STATS:
+            continue
+
+        arr = np.array(values, dtype=float)
+        median = np.median(arr)
+        mad = np.median(np.abs(arr - median))
+
+        if mad == 0:
+            continue
+
+        modified_z = 0.6745 * (arr - median) / mad
+
+        for idx, z, value in zip(idxs, modified_z, values):
+            if abs(z) > threshold:
+                anomalies.append({
+                    "season": df.at[idx, "season"],
+                    "column": col,
+                    "value": value,
+                    "rule": "statistical_outlier",
+                    "detail": f"中央値={median:.2f}から外れ値（修正z-score={z:.2f}）",
+                })
+    return anomalies
+
+
+def validate_anomalies(df, regions, anomaly_config, logger):
+    value_columns = list(regions.keys())
+    ratio_columns = [c for c in value_columns if is_ratio_column(c)]
+    career_count_columns = [
+        c for c in value_columns
+        if c.startswith("career_") and c not in ratio_columns
+    ]
+    season_columns = [c for c in value_columns if c.startswith("season_")]
+
+    threshold = anomaly_config.get("mad_z_threshold", DEFAULT_MAD_Z_THRESHOLD)
+
+    anomalies = (
+        detect_type_anomalies(df, value_columns)
+        + detect_monotonicity_anomalies(df, career_count_columns)
+        + detect_statistical_outliers(df, season_columns, threshold)
+    )
+
+    if not anomalies:
+        logger.info("異常値検出: 問題ありません")
+        return anomalies
+
+    logger.warning("異常値検出: %d件の疑わしい値を検出しました", len(anomalies))
+    for a in anomalies:
+        logger.warning(
+            "  season=%s column=%s value=%s rule=%s detail=%s",
+            a["season"], a["column"], a["value"], a["rule"], a["detail"],
+        )
+    return anomalies
+
+
 def main():
     config = load_config("config.json")
     logger = init_logger(config.get("log_file", "ocr.log"))
@@ -287,6 +417,7 @@ def main():
     output_file = config["output_file"]
     ocr_config = config["ocr"]
     regions = config["regions"]
+    anomaly_config = config.get("anomaly_detection", {})
 
     reader = init_reader(ocr_config)
 
@@ -301,7 +432,8 @@ def main():
             rows.append(row)
 
     columns = ["season"] + list(regions.keys())
-    save_csv(rows, output_file, columns, logger)
+    df = save_csv(rows, output_file, columns, logger)
+    validate_anomalies(df, regions, anomaly_config, logger)
 
 
 if __name__ == "__main__":
