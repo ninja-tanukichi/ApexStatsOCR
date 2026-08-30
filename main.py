@@ -6,7 +6,23 @@ import sys
 
 import cv2
 import easyocr
+import numpy as np
 import pandas as pd
+
+
+# cv2.imread/imwriteはWindowsで非ASCII(日本語等)パスを扱えず無音で失敗するため、
+# np.fromfile/tofile経由でエンコード・デコードする
+def imread_unicode(path):
+    data = np.fromfile(path, dtype=np.uint8)
+    return cv2.imdecode(data, cv2.IMREAD_COLOR)
+
+
+def imwrite_unicode(path, img):
+    ext = os.path.splitext(path)[1]
+    ok, buf = cv2.imencode(ext, img)
+    if ok:
+        buf.tofile(path)
+    return ok
 
 
 def init_logger(log_file="ocr.log"):
@@ -193,7 +209,7 @@ def ocr_region(img, rect, scale_x, scale_y, name, reader, ocr_config, logger):
         return ""
 
     os.makedirs("debug", exist_ok=True)
-    cv2.imwrite(f"debug/{name}.png", crop)
+    imwrite_unicode(f"debug/{name}.png", crop)
 
     crop = preprocess(crop, ocr_config["resize_scale"])
 
@@ -218,7 +234,7 @@ def ocr_region(img, rect, scale_x, scale_y, name, reader, ocr_config, logger):
 def process_image(file_path, reader, regions, base_width, base_height, ocr_config, logger):
     logger.info("\n解析中: %s", os.path.basename(file_path))
 
-    img = cv2.imread(file_path)
+    img = imread_unicode(file_path)
     if img is None:
         logger.error("画像読込失敗: %s", os.path.basename(file_path))
         return None

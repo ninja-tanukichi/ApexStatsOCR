@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-30
+
+### Fixed
+
+- `main.py`: Windows上で非ASCII（日本語等）パスに配置すると`cv2.imread`/`cv2.imwrite`が無音で失敗し、
+  全画像が読み込めないまま空のCSVが出力される不具合を修正。`np.fromfile`/`cv2.imdecode`経由の
+  読み込み・書き込みに変更
+
+### Documentation
+
+- README.md / AI_PROMPT.mdに実行時の前提条件（インターネット接続必須、`input/`を空のまま実行した場合の挙動、
+  想定解像度・UI言語）を明記
+
 ## [1.0.0] - 2026-08-30
 
 ### Added
@@ -25,5 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/releases/tag/v1.0.0
