@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-30
+
+### Added
+
+- 回帰テストを追加（`tests/test_ocr_pipeline.py`）。個人データを含む実画像はテストに使えないため、
+  `tests/fixtures/generate_sample.py` が `config.json` の座標定義から合成画像
+  （`tests/fixtures/sample_input/1.png`）と期待値（`tests/fixtures/expected_values.json`）を生成する
+  - 画像描画は当初`cv2.putText`（Hersheyフォント）で試したが、小さいフォントサイズで桁区切りの
+    カンマがピリオドに誤読される問題を実機のEasyOCRで確認したため、PIL＋Boldフォント
+    （OS標準フォントを検索し、無ければPillow内蔵フォントへフォールバック）に変更して解消した
+  - 実機検証で31項目全て期待値と一致することを確認済み
+- `requirements-dev.txt`を追加（`pytest`。エンドユーザー向けの`requirements.txt`とは分離）
+
+### Changed
+
+- README.mdに回帰テストの実行方法を追記
+
 ## [1.1.0] - 2026-08-30
 
 ### Added
@@ -57,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/releases/tag/v1.0.0

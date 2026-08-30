@@ -76,6 +76,19 @@ pip install -r requirements.txt
 
 閾値は `config.json` の `anomaly_detection.mad_z_threshold` で調整できる。検出された異常値は自動修正されないため、`ocr.log` の該当行と `debug/<列名>.png` を照らし合わせて手動でCSVを修正する。
 
+## 回帰テスト
+
+個人の成績データを含む実画像はテストに使えないため、`tests/fixtures/generate_sample.py` が
+`config.json` の座標定義を使って生成した合成画像（`tests/fixtures/sample_input/1.png`、個人情報を含まない）を
+サンプルとして使う。座標や後処理ロジック（`convert_value`等）を変更した際に壊れていないか確認できる。
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/
+```
+
+`regions` の座標を変更した場合は、`python tests/fixtures/generate_sample.py` でサンプル画像・期待値を再生成すること。
+
 ## AIエージェントによる実行・検証
 
 [AI_PROMPT.md](AI_PROMPT.md) に、AIコーディングエージェント（Claude Code等）へそのまま渡すことで
