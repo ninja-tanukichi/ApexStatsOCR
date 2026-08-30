@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-30
+
+### Removed
+
+- `legacy/`（旧実装 `test.py` / `test2.py` / `old_main.py`）をgit管理から除外（`.gitignore`＋`git rm --cached`）。
+  ローカルには記録として残すが、公開リポジトリには含めない。README.mdの参照も削除
+
 ## [1.4.0] - 2026-08-30
 
 ### Added
@@ -104,7 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...v1.2.0

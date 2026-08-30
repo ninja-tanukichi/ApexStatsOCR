@@ -11,8 +11,6 @@ Apex Legendsの「トラッカー（成績）」画面のスクリーンショ�
 | [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
 | [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定（言語・許可文字・拡大率など）、各スタッツ項目の切り出し座標（`regions`）を定義 |
 | [apex_dashboard_v3.html](apex_dashboard_v3.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移（勝率・KDR・ダメージ等）をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
-| [legacy/test.py](legacy/test.py) | EasyOCRの動作確認用の単発スクリプト（1枚の画像を丸ごとOCRするだけの検証用） |
-| [legacy/test2.py](legacy/test2.py) / [legacy/old_main.py](legacy/old_main.py) | 座標定義（`top_stats`/`damage_stats`等のブロック単位）が現行の`config.json`と異なる旧方式の実装。**現在は未使用（参考・実験用）** |
 | `input/` | OCR対象のスクリーンショット（`シーズン番号.png`）を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**（`.gitkeep`のみ管理） |
 | `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
 | `debug/` | OCR時に切り出した各領域の画像が項目名ごとに保存される（座標調整・誤認識調査用）。**`.gitignore`済み** |
