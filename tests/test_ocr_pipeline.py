@@ -4,7 +4,7 @@
 実際のゲーム画面は個人の成績データを含み公開できないため、
 tests/fixtures/generate_sample.py が生成したダミー画像を使う。
 EasyOCRのモデルダウンロードが必要なため、初回のみインターネット接続が要る
-（実行方法は AI_PROMPT.md / README.md の「実行時の前提条件」を参照）。
+（実行方法は README.md の「実行時の前提条件」を参照）。
 """
 import json
 import os
