@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-08-30
+
+### Changed
+
+- README.mdの目次を1レベル(H2見出しのみ)に簡略化
+- 「動作要件」と「実行時の前提条件」を1つの「動作要件」セクションへ統合
+- 「処理の流れ」を`docs/processing-flow.md`へ移動し、READMEからリンクする形に変更
+
 ## [1.7.0] - 2026-08-30
 
 ### Added
@@ -138,7 +146,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.4.0...v1.5.0
