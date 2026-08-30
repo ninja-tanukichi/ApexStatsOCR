@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-08-30
+
+### Added
+
+- READMEの「動作要件」に、既にPython環境を持つユーザー向けの任意選択として仮想環境(venv)の
+  利用手順を追記。実行のしやすさを損なわないよう既存の手順は変更せず、追加の選択肢として案内する形にした
+
 ## [1.12.0] - 2026-08-30
 
 ### Added
@@ -191,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...v1.10.0

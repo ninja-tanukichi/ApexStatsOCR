@@ -48,6 +48,14 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 pip install -r requirements.txt
 ```
 
+既にPython環境を他の用途で使っている場合は、依存パッケージの衝突を避けるため仮想環境(venv)の利用を推奨します。
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+
 - インターネット接続が必要(`main.py` 初回実行時、EasyOCRが認識モデルをネット経由でダウンロードするため。社内プロキシ・オフライン環境では失敗する)
 - 1920x1080・英語UIの成績画面を前提(`config.json` の `regions` 座標は解像度に応じてスケーリングされるが、アスペクト比やUI言語が異なると数値を正しく切り出せない場合がある)
 - `input/` に画像を配置してから実行する(空のまま実行してもエラーにはならず、ヘッダーのみの空CSVが生成される。一見動いていないように見えるだけ)
