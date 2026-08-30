@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-08-30
+
+### Added
+
+- `docs/anomaly-detection.md`を新設し、異常値検出・修正候補提示の実装詳細
+  (MADベース修正z-scoreの計算式、比率列を単調性チェックから除外する理由、修正候補ヒューリスティック等)
+  をREADME本文から分離した
+
+### Fixed
+
+- 「`debug/<列名>.png`を確認する」という誤った案内を修正。`debug/`は列名ごとに1枚しか保持されず、
+  複数画像を一括処理すると最後に処理した画像の分で上書きされるため、特定シーズンの異常値調査には使えない。
+  README.md・AI_PROMPT.mdの該当箇所を、season番号から `input/<シーズン番号>.png` を直接確認する案内に修正
+
 ## [1.6.0] - 2026-08-30
 
 ### Removed
@@ -124,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.3.0...v1.4.0
