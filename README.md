@@ -20,7 +20,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | ファイル | 役割 |
 | --- | --- |
 | [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
-| [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義 |
+| [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義。各項目の意味は[docs/config.md](docs/config.md)を参照 |
 | [apex_dashboard.html](apex_dashboard.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
 | [version.js](version.js) | `apex_dashboard.html`が表示するバージョン情報(`DASHBOARD_VERSION`/`CSV_SCHEMA_VERSION`)。ダッシュボード本体のソースにバージョンを埋め込まないよう分離している |
 | `input/` | OCR対象のスクリーンショット(`シーズン番号.png`)を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**(`.gitkeep`のみ管理) |

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-08-30
+
+### Added
+
+- `docs/config.md`を新設。`config.json`の全項目の説明、および`regions`のキー(=CSVの列名)が
+  実際にどのApex Legendsのスタッツを指すかの一覧を記載。あわせて、これまでドキュメント化されて
+  いなかった`ocr.num_allowlist`/`ocr.threshold`が現在未使用であることも明記した
+- READMEの機能概要から`docs/config.md`へリンク
+
 ## [1.10.0] - 2026-08-30
 
 ### Changed
@@ -175,7 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.7.0...v1.8.0
