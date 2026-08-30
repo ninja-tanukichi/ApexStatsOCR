@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-08-30
+
+### Added
+
+- READMEに「スクリーンショット」セクションを追加し、ダッシュボードの表示例(サンプルデータ)を掲載
+  (`docs/images/dashboard-kpi.png`, `docs/images/dashboard-charts.png`)。個人の実データは使用していない
+
 ## [1.11.0] - 2026-08-30
 
 ### Added
@@ -184,7 +191,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.8.0...v1.9.0

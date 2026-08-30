@@ -7,6 +7,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 ## 目次
 
 - [機能概要](#機能概要)
+- [スクリーンショット](#スクリーンショット)
 - [動作要件](#動作要件)
 - [使い方](#使い方)
 - [異常値の自動検出](#異常値の自動検出)
@@ -29,6 +30,14 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | `ocr.log` | 実行時のOCRログ(読み取り結果・変換後の値)。**`.gitignore`済み** |
 
 内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
+
+## スクリーンショット
+
+`apex_dashboard.html` にCSVを読み込んだ際の表示例(サンプルデータ。個人の実データではない)。
+
+![ダッシュボードのKPIカード](docs/images/dashboard-kpi.png)
+
+![シーズン推移グラフの例](docs/images/dashboard-charts.png)
 
 ## 動作要件
 
