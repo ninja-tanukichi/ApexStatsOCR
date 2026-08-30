@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX Stats Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5}
+h1{margin-bottom:10px}
+.cards{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.card{background:white;padding:12px;border-radius:8px;min-width:180px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.chart{background:white;border-radius:8px;padding:10px;margin-bottom:20px}
+#details{background:white;padding:12px;border-radius:8px}
+</style>
+</head>
+<body>
+<h1>APEX Stats Dashboard</h1>
+<div id="version">
+    Version 1.0.0<br>
+    CSV Schema 1.0<br>
+    Build 2026-06-12
+</div>
+
+<p>CSVファイルを選択してください。</p>
+<input type="file" id="csvFile" accept=".csv">
+
+<div class="cards">
+  <div class="card"><b>Career Game</b><div id="kpiGames">-</div></div>
+  <div class="card"><b>Career KDR</b><div id="kpiKdr">-</div></div>
+  <div class="card"><b>Career Kills</b><div id="kpiKills">-</div></div>
+  <div class="card"><b>Career Wins</b><div id="kpiWins">-</div></div>
+  <div class="card"><b>Career Avg Damage</b><div id="kpiDmg">-</div></div>
+</div>
+
+<div class="cards">
+  <div class="card"><b>Total Game</b><div id="TotalGames">-</div></div>
+  <div class="card"><b>Total Kills</b><div id="TotalKills">-</div></div>
+  <div class="card"><b>Total Wins</b><div id="TotalWins">-</div></div>
+</div>
+
+<div id="gamesChart" class="chart"></div>
+<div id="winRateChart" class="chart"></div>
+<div id="top5RateChart" class="chart"></div>
+
+<div id="kdrChart" class="chart"></div>
+<div id="damageChart" class="chart"></div>
+<div id="scatterChart" class="chart"></div>
+
+<div id="knockChart" class="chart"></div>
+<div id="assistChart" class="chart"></div>
+<div id="reviveChart" class="chart"></div>
+<div id="respawnChart" class="chart"></div>
+
+<div id="details">シーズンの点をクリックすると詳細表示</div>
+
+<script>
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/);
+  const headers=lines[0].split(',');
+  return lines.slice(1).map(line=>{
+    const vals=line.split(',');
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=vals[i]);
+    return obj;
+  });
+}
+
+document.getElementById('csvFile').addEventListener('change', e=>{
+  const file=e.target.files[0];
+  const reader=new FileReader();
+
+  reader.onload=function(ev){
+    let data=parseCSV(ev.target.result);
+
+    data=data.map(r=>({
+      ...r,
+      season:Number(r.season),
+      season_kdr:Number(r.season_kdr),
+      season_damage_avg:Number(r.season_damage_avg),
+      season_games:Number(r.season_games),
+      season_knockdowns:Number(r.season_knockdowns),
+      season_assists:Number(r.season_assists),
+      season_revives:Number(r.season_revives),
+      season_respawns:Number(r.season_respawns),
+      season_deaths:Number(r.season_deaths),
+      knock_per_game:Number(r.season_knockdowns)/Math.max(Number(r.season_games),1),
+      assist_per_game:Number(r.season_assists)/Math.max(Number(r.season_games),1),
+      revive_per_game:Number(r.season_revives)/Math.max(Number(r.season_games),1),
+      respawn_per_game:Number(r.season_respawns)/Math.max(Number(r.season_games),1),
+      win_per_game:Number(r.season_wins)/Math.max(Number(r.season_games),1),
+      top5_per_game:Number(r.season_top5)/Math.max(Number(r.season_games),1)
+    }));
+
+    data.sort((a,b)=>a.season-b.season);
+
+    const latest=data[data.length-1];
+
+    const totalSeasonGames =
+    data.reduce((sum, r) => sum + Number(r.season_games || 0), 0);
+
+    const totalSeasonKills =
+        data.reduce((sum, r) => sum + Number(r.season_kills || 0), 0);
+
+    const totalSeasonWins =
+        data.reduce((sum, r) => sum + Number(r.season_wins || 0), 0);
+
+    const totalSeasonKnockdowns =
+        data.reduce((sum, r) => sum + Number(r.season_knockdowns || 0), 0);
+
+    const totalSeasonDeaths =
+        data.reduce((sum, r) => sum + Number(r.season_deaths || 0), 0);
+
+    document.getElementById('kpiGames').innerText=Number(latest.career_games).toLocaleString();
+    document.getElementById('kpiKdr').innerText=latest.career_kdr;
+    document.getElementById('kpiKills').innerText=Number(latest.career_kills).toLocaleString();
+    document.getElementById('kpiWins').innerText=Number(latest.career_wins).toLocaleString();
+    document.getElementById('kpiDmg').innerText=Number(latest.career_damage_avg).toLocaleString();
+    
+    document.getElementById("TotalGames").innerText = totalSeasonGames.toLocaleString();
+    document.getElementById("TotalKills").innerText = totalSeasonKills.toLocaleString();
+    document.getElementById("TotalWins").innerText =  totalSeasonWins.toLocaleString();
+
+    Plotly.newPlot('gamesChart',[{
+    x:data.map(x=>x.season),
+    y:data.map(x=>x.season_games),
+    mode:'lines+markers'
+    }],{
+        title:'Games Played',
+        xaxis:{
+            title:'Season'
+        },
+        yaxis:{
+            title:'Games'
+        }
+    });
+
+    Plotly.newPlot('winRateChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.win_per_game * 100),
+      mode:'lines+markers'
+    }],{
+      title:'Wins Rate',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Win Rate (%)'}
+    });
+
+    Plotly.newPlot('top5RateChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.top5_per_game * 100),
+      mode:'lines+markers'
+    }],{
+      title:'Top5 Rate',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Top5 Rate (%)'}
+    });
+
+    Plotly.newPlot('kdrChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.season_kdr),
+      mode:'lines+markers',
+      name:'KDR',
+      text:data.map(x=>'Season '+x.season)
+    }],{
+      title:'Season KDR Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'KDR'}
+    });
+
+    Plotly.newPlot('damageChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.season_damage_avg),
+      mode:'lines+markers',
+      name:'Damage Avg'
+    }],{
+      title:'Season Damage Avg Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Damage Avg'}
+    });
+
+    Plotly.newPlot('scatterChart',[{
+      x:data.map(x=>x.season_damage_avg),
+      y:data.map(x=>x.season_kdr),
+      mode:'markers+text',
+      text:data.map(x=>'S'+x.season),
+      textposition:'top center'
+    }],{
+      title:'Damage Avg vs KDR',
+      xaxis:{title:'Damage Avg'},
+      yaxis:{title:'KDR'}
+    });
+
+    
+    Plotly.newPlot('knockChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.knock_per_game),
+      mode:'lines+markers'
+    }],{
+      title:'Knockdowns Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Knockdowns/Game'}
+    });
+
+    Plotly.newPlot('assistChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.assist_per_game),
+      mode:'lines+markers'
+    }],{
+      title:'Assists Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Assists/Game'}
+    });
+
+    Plotly.newPlot('reviveChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.revive_per_game),
+      mode:'lines+markers'
+    }],{
+      title:'Revives Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Revives/Game'}
+    });
+
+    Plotly.newPlot('respawnChart',[{
+      x:data.map(x=>x.season),
+      y:data.map(x=>x.respawn_per_game),
+      mode:'lines+markers'
+    }],{
+      title:'Respawns Trend',
+      xaxis:{title:'Season'},
+      yaxis:{title:'Respawns/Game'}
+    });
+
+
+    document.getElementById('scatterChart').on('plotly_click', function(ev){
+      const idx=ev.points[0].pointIndex;
+      const r=data[idx];
+
+      document.getElementById('details').innerHTML=`
+      <h3>Season ${r.season}</h3>
+      Games: ${r.season_games}<br>
+      Wins: ${r.season_wins}<br>
+      Top5: ${r.season_top5}<br>
+      Kills: ${r.season_kills}<br>
+      Deaths: ${r.season_deaths}<br>
+      KDR: ${r.season_kdr}<br>
+      Damage Avg: ${r.season_damage_avg}
+      `;
+    });
+  };
+
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>

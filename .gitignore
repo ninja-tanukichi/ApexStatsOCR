@@ -1,0 +1,14 @@
+# 個人データ（成績スクリーンショット・OCR生成物）
+/input/*.png
+/input/*.jpg
+/input/*.jpeg
+/output/*.csv
+/debug/*.png
+/debug_*.png
+ocr.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

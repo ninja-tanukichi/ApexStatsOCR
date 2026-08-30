@@ -1,0 +1,59 @@
+{
+  "version": "3.0",
+  "base_width": 1920,
+  "base_height": 1080,
+  "input_dir": "input",
+  "output_file": "output/apex_stats.csv",
+
+  "ocr": {
+    "languages": ["en"],
+    "num_allowlist": "0123456789.,",
+    "allowlist": "0123456789.,/KM",
+    "gpu": false,
+    "resize_scale": 4.0,
+    "threshold": 170
+  },
+
+  "regions": {
+
+    "career_games": [680, 305, 825, 350],
+    "career_wins": [850, 308, 1020, 350],
+    "career_top5": [1045, 305, 1215, 350],
+
+    "career_damage": [685, 620, 910, 665],
+    "career_damage_max": [788, 680, 880, 710],
+    "career_damage_avg": [780, 710, 865, 735],
+
+    "career_kills": [965, 620, 1185, 665],
+    "career_deaths": [1070, 680, 1160, 710],
+    "career_kdr": [1078, 710, 1138, 735],
+
+    "career_max_kills": [800, 821, 929, 845],
+    "career_knockdowns": [800, 850, 930, 875],
+    "career_assists": [800, 880, 930, 905],
+
+    "career_win_streak": [1100, 821, 1205, 845],
+    "career_revives": [1100, 850, 1205, 875],
+    "career_respawns": [1100, 880, 1205, 905],
+
+    "season_games": [1300, 305, 1450, 350],
+    "season_wins": [1500, 308, 1650, 350],
+    "season_top5": [1700, 305, 1850, 350],
+
+    "season_damage": [1325, 620, 1550, 665],
+    "season_damage_max": [1428, 680, 1520, 710],
+    "season_damage_avg": [1422, 710, 1500, 735],
+
+    "season_kills": [1605, 620, 1820, 665],
+    "season_deaths": [1720, 680, 1790, 710],
+    "season_kdr": [1710, 710, 1775, 735],
+
+    "season_max_kills": [1440, 821, 1570, 845],
+    "season_knockdowns": [1440, 850, 1570, 875],
+    "season_assists": [1440, 880, 1570, 905],
+
+    "season_win_streak": [1740, 821, 1850, 845],
+    "season_revives": [1740, 850, 1850, 875],
+    "season_respawns": [1740, 880, 1850, 905]
+  }
+}
