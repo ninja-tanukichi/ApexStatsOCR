@@ -2,7 +2,9 @@ import json
 import logging
 import os
 import re
+import shutil
 import sys
+from datetime import datetime
 
 import cv2
 import easyocr
@@ -267,8 +269,29 @@ def process_image(file_path, reader, regions, base_width, base_height, ocr_confi
 # CSV出力
 # =========================
 
+def backup_existing_file(path, logger):
+    if not os.path.exists(path):
+        return None
+
+    base, ext = os.path.splitext(path)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = f"{base}_{timestamp}{ext}"
+
+    # 同じ秒内に複数回保存されるとタイムスタンプが衝突し、前のバックアップを
+    # 上書きしてしまうため、既に存在する場合は連番を付けて衝突を避ける
+    suffix = 1
+    while os.path.exists(backup_path):
+        backup_path = f"{base}_{timestamp}_{suffix}{ext}"
+        suffix += 1
+
+    shutil.move(path, backup_path)
+    logger.info("既存ファイルをバックアップしました: %s -> %s", path, backup_path)
+    return backup_path
+
+
 def save_csv(rows, output_file, columns, logger):
     os.makedirs(os.path.dirname(output_file) or ".", exist_ok=True)
+    backup_existing_file(output_file, logger)
     df = pd.DataFrame(rows)
     df = df.reindex(columns=columns)
     df.to_csv(output_file, index=False, encoding="utf-8-sig")

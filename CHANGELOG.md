@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-30
+
+### Added
+
+- `main.py`: CSV出力時、既に同名ファイルが存在する場合は上書きする前に
+  `apex_stats_<タイムスタンプ>.csv` として同ディレクトリへバックアップしてから新規作成するように変更
+  （`backup_existing_file`）。バックアップは自動削除されないため`output/`に蓄積する
+- `tests/test_save_csv.py`を追加（EasyOCR不要、`save_csv`のバックアップ挙動を検証）
+  - 実装時、同じ秒内に複数回保存するとタイムスタンプ（秒精度）が衝突し、直前のバックアップを
+    上書きして消してしまうバグをテストで実際に検出。バックアップパスが既に存在する場合は
+    連番を付けて回避するよう修正した
+
 ## [1.2.0] - 2026-08-30
 
 ### Added
@@ -74,7 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.0.0...v1.0.1
