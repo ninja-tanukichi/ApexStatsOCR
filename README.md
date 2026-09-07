@@ -11,6 +11,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 - [動作要件](#動作要件)
 - [使い方](#使い方)
 - [異常値の自動検出](#異常値の自動検出)
+- [異常値の訂正を記録する](#異常値の訂正を記録する)
 - [回帰テスト](#回帰テスト)
 - [Contributing](#contributing)
 - [ライセンス](#ライセンス)
@@ -29,6 +30,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
 | `debug/` | OCR時に切り出した各領域の画像が項目名ごとに保存される(`config.json`の座標調整用)。**列名ごとに1枚のみ保持され、複数画像を一括処理すると最後に処理した画像の分で上書きされるため、特定シーズンの調査には使えない**。**`.gitignore`済み** |
 | `ocr.log` | 実行時のOCRログ(読み取り結果・変換後の値)。**`.gitignore`済み** |
+| `corrections.json` | 異常値の訂正を記録するファイル。初回実行時に無ければ自動生成される。詳細は[異常値の訂正を記録する](#異常値の訂正を記録する)を参照。**個人の統計値を含むため`.gitignore`済み** |
 
 内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
 
@@ -109,6 +111,38 @@ pip install -r requirements.txt
 
 修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認してから手動でCSVを修正すること(`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は候補なしとしてログに記録される。
 
+なぜその値になったのか(OCRの生テキスト・切り出した各項目の変換結果)を調べたい場合は、`config.json`の`log_level`を`"DEBUG"`に変更すると`ocr.log`に詳細が出力される(既定は`INFO`で、この詳細は出力されない)。
+
+## 異常値の訂正を記録する
+
+`input/`の画像は毎回変わらないため、目視確認して直した値を実行のたびに手動でCSVへ書き直すのは手間になる。`corrections.json`に訂正を記録しておくと、`main.py`が実行のたびに自動で適用してくれる。
+
+### 書き方
+
+`ocr.log`のWARNING行を見ながら、`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ以下の形式で追記する。
+
+```json
+{
+  "9": {
+    "season_kdr": {"observed": 44.0, "corrected": 0.44}
+  },
+  "24": {
+    "season_damage_avg": {"observed": 1431.4, "corrected": 143.14}
+  }
+}
+```
+
+- `observed`: `ocr.log`のWARNING行に出ている`value`(訂正前のOCR生値)をそのまま転記する
+- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補をそのまま使う場合は`ocr.log`の「修正候補: …」の値を転記する)
+
+### 適用の挙動
+
+- 次回実行時、該当seasonの現在のOCR生値が`observed`と一致する場合のみ訂正を適用し、`ocr.log`にINFOで記録する
+- 一致しない場合(`input/`の画像を差し替えて再OCRした等)は**訂正を適用せず、最新のOCR結果をそのまま採用**した上で`ocr.log`にWARNINGを出す。古い訂正データより新しい画像データを優先するための挙動であり、この場合は改めて元画像を確認し`corrections.json`を書き直す必要がある
+- 訂正はCSV出力・異常値検出より前に適用されるため、一度正しく訂正した項目が毎回の異常値検出で再び警告されることはない
+
+現時点では`corrections.json`の作成・更新は手動(テキストエディタでの編集)のみサポートしている。個人の統計値を含むため`.gitignore`済みで、コミットには含まれない。
+
 ## 回帰テスト
 
 個人の成績データを含む実画像はテストに使えないため、`tests/fixtures/generate_sample.py` が
@@ -134,7 +168,7 @@ pytest tests/
 
 - `pytest tests/` が通ることを確認する
 - `config.json` の `regions` を変更した場合は `python tests/fixtures/generate_sample.py` でサンプル画像・期待値を再生成する
-- 個人の成績スクリーンショット・実データのCSV・`apex_dashboard_latest.html`(CSVデータを埋め込んだ生成物)をコミットに含めない(`.gitignore`で除外済みだが念のため)
+- 個人の成績スクリーンショット・実データのCSV・`apex_dashboard_latest.html`(CSVデータを埋め込んだ生成物)・`corrections.json`(個人の訂正値)をコミットに含めない(`.gitignore`で除外済みだが念のため)
 
 READMEの[スクリーンショット](#スクリーンショット)用のデモデータを更新したい場合は、`python docs/demo-data/generate_demo_stats.py` で架空データを生成できる(実データは使わないこと)。
 

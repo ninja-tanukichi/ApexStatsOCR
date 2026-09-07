@@ -9,6 +9,9 @@
 | `base_width` / `base_height` | `regions` の座標の基準となる解像度。実際の画像がこれと異なる解像度の場合、`main.py`が比率でスケーリングする |
 | `input_dir` | OCR対象画像を置くディレクトリ |
 | `output_file` | 出力CSVのパス |
+| `corrections_file` | 訂正値を記録するファイルのパス(既定`corrections.json`)。詳細は[README](../README.md#異常値の訂正を記録する)を参照 |
+| `log_file` | ログの出力先パス(既定`ocr.log`) |
+| `log_level` | ログレベル(既定`INFO`)。OCR結果の詳細(切り出した各項目のOCR生テキスト・変換後の値)は`DEBUG`でのみ出力されるため、OCR誤読の原因調査時は`DEBUG`に変更する |
 
 ## `ocr`
 

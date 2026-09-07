@@ -3,6 +3,8 @@
   "base_height": 1080,
   "input_dir": "input",
   "output_file": "output/apex_stats.csv",
+  "corrections_file": "corrections.json",
+  "log_level": "INFO",
 
   "ocr": {
     "languages": ["en"],
