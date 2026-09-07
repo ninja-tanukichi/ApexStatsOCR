@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-09-07
+
+### Added
+
+- `main.py`: CSV出力後、`apex_dashboard.html`にCSVデータを埋め込んだ`apex_dashboard_latest.html`を
+  生成し、デフォルトブラウザで自動的に開くようにした（`build_dashboard_with_data`/`open_dashboard`）。
+  OCR→CSV作成→グラフ表示という従来の2ステップの手動運用を、`python main.py`一発で完結する
+  ワークフローに統合した
+  - `apex_dashboard.html`側は描画処理を`renderDashboard(csvText)`関数へ切り出し、埋め込みデータの
+    有無で自動描画/手動ファイル選択を切り替える。既存の手動運用（過去のCSVを選び直す等）はそのまま維持
+  - `config.json`に`dashboard`セクション（`auto_open`/`template_file`/`output_file`）を追加。
+    `auto_open: false`で従来通りの手動オープンのみに戻せる
+  - 生成物`apex_dashboard_latest.html`は個人データ（CSV内容）を埋め込むため`.gitignore`済み。
+    実行のたびに上書きされ、バックアップは作らない（CSVから常に再生成できる派生物のため）。
+    ブラウザは実行のたびに新規タブが開く仕様とし、タブが積み上がる挙動は許容する判断とした
+  - `tests/test_dashboard.py`を追加（プレースホルダ置換のJSON往復、`</script>`エスケープを検証）
+  - 実データ22枚での実機検証で、CSV生成・異常値検出・ダッシュボード自動オープンまで
+    一気通貫で動作することを確認済み
+
+### Documentation
+
+- README/`docs/config.md`/`docs/processing-flow.md`を上記機能に合わせて更新
+
 ## [1.15.0] - 2026-08-30
 
 ### Added
@@ -213,7 +236,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.12.0...v1.13.0
