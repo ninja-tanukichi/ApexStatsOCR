@@ -17,6 +17,12 @@
     "mad_z_threshold": 3.5
   },
 
+  "dashboard": {
+    "auto_open": true,
+    "template_file": "apex_dashboard.html",
+    "output_file": "apex_dashboard_latest.html"
+  },
+
   "regions": {
 
     "career_games": [680, 305, 825, 350],

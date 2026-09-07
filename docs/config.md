@@ -27,6 +27,16 @@
 | --- | --- |
 | `mad_z_threshold` | 統計的外れ値検知の閾値。詳細は[docs/anomaly-detection.md](anomaly-detection.md)を参照 |
 
+## `dashboard`
+
+CSV出力後にダッシュボードを自動表示する機能の設定。詳細は[README](../README.md#3-ダッシュボード表示)を参照。
+
+| キー | 意味 |
+| --- | --- |
+| `auto_open` | `true`の場合、CSV出力後に自動生成したダッシュボードHTMLをデフォルトブラウザで開く。`false`にすると従来通り手動で`apex_dashboard.html`を開く運用に戻る |
+| `template_file` | 埋め込み元となるダッシュボードのテンプレートファイル(通常は`apex_dashboard.html`) |
+| `output_file` | CSVデータを埋め込んだ生成先ファイル名。個人データを含むため`.gitignore`済みで、実行のたびに上書きされる(バックアップは作られない) |
+
 ## `regions`(CSV列の意味)
 
 各キーは画像上の切り出し矩形 `[x1, y1, x2, y2]`(左上・右下のピクセル座標、`base_width`/`base_height`基準)を表す。キー名はそのまま `output/apex_stats.csv` の列名になる。
