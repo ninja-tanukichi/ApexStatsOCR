@@ -134,7 +134,7 @@ pytest tests/
 
 - `pytest tests/` が通ることを確認する
 - `config.json` の `regions` を変更した場合は `python tests/fixtures/generate_sample.py` でサンプル画像・期待値を再生成する
-- 個人の成績スクリーンショット・実データのCSVをコミットに含めない(`.gitignore`で除外済みだが念のため)
+- 個人の成績スクリーンショット・実データのCSV・`apex_dashboard_latest.html`(CSVデータを埋め込んだ生成物)をコミットに含めない(`.gitignore`で除外済みだが念のため)
 
 READMEの[スクリーンショット](#スクリーンショット)用のデモデータを更新したい場合は、`python docs/demo-data/generate_demo_stats.py` で架空データを生成できる(実データは使わないこと)。
 
