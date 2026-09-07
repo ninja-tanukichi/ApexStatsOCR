@@ -4,7 +4,9 @@ import os
 import re
 import shutil
 import sys
+import webbrowser
 from datetime import datetime
+from pathlib import Path
 
 import cv2
 import easyocr
@@ -450,6 +452,40 @@ def validate_anomalies(df, regions, anomaly_config, logger):
     return anomalies
 
 
+# =========================
+# ダッシュボード自動オープン
+# =========================
+
+def build_dashboard_with_data(template_path, csv_text, output_path):
+    html = Path(template_path).read_text(encoding="utf-8")
+
+    # </script>の途中終了を防ぐため、JSON文字列化した後に</をエスケープする
+    payload = json.dumps(csv_text).replace("</", "<\\/")
+
+    placeholder = '<script id="embedded-data" type="application/json">null</script>'
+    replacement = f'<script id="embedded-data" type="application/json">{payload}</script>'
+
+    if placeholder not in html:
+        raise ValueError(f"ダッシュボードテンプレートにプレースホルダが見つかりません: {template_path}")
+
+    html = html.replace(placeholder, replacement)
+    Path(output_path).write_text(html, encoding="utf-8")
+
+
+def open_dashboard(csv_path, dashboard_config, logger):
+    if not dashboard_config.get("auto_open", True):
+        return
+
+    template_path = dashboard_config.get("template_file", "apex_dashboard.html")
+    output_path = dashboard_config.get("output_file", "apex_dashboard_latest.html")
+
+    csv_text = Path(csv_path).read_text(encoding="utf-8-sig")
+    build_dashboard_with_data(template_path, csv_text, output_path)
+
+    webbrowser.open(Path(output_path).resolve().as_uri())
+    logger.info("ダッシュボードを開きました: %s", output_path)
+
+
 def main():
     config = load_config("config.json")
     logger = init_logger(config.get("log_file", "ocr.log"))
@@ -477,6 +513,8 @@ def main():
     columns = ["season"] + list(regions.keys())
     df = save_csv(rows, output_file, columns, logger)
     validate_anomalies(df, regions, anomaly_config, logger)
+
+    open_dashboard(output_file, config.get("dashboard", {}), logger)
 
 
 if __name__ == "__main__":

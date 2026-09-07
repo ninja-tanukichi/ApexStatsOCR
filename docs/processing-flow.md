@@ -9,3 +9,7 @@
 5. 全画像分の結果を1行ずつまとめ、`output/apex_stats.csv` へ出力
    - 既に同名のCSVが存在する場合は、上書きする前に `apex_stats_<タイムスタンプ>.csv` として同じディレクトリへバックアップしてから新規作成する
 6. 出力結果を自動検証し、疑わしい値があれば `ocr.log` に警告を出力(詳細は[anomaly-detection.md](anomaly-detection.md)を参照)
+7. `config.json` の `dashboard.auto_open` が有効な場合、生成したCSVを `apex_dashboard.html`(`dashboard.template_file`)に埋め込んだ `apex_dashboard_latest.html`(`dashboard.output_file`)を生成し、デフォルトブラウザで自動的に開く
+   - 埋め込みはテンプレート内のプレースホルダ(`<script id="embedded-data" type="application/json">null</script>`)をCSVテキストのJSON文字列に置換する形で行う(`build_dashboard_with_data`)。`</script>`によるタグの途中終了を防ぐため `</` はエスケープする
+   - 生成先ファイルは実行のたびに上書きされ、バックアップは作られない(CSVとは異なりダッシュボードは常にCSVから再生成できる派生物のため)。ブラウザ側も実行のたびに新規タブが開く(既存タブの再利用・自動クローズはしない)
+   - 設定の詳細は[config.md](config.md#dashboard)を参照

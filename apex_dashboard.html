@@ -27,6 +27,7 @@ document.getElementById('version').innerHTML =
 
 <p>CSVファイルを選択してください。</p>
 <input type="file" id="csvFile" accept=".csv">
+<script id="embedded-data" type="application/json">null</script>
 
 <div class="cards">
   <div class="card"><b>Career Game</b><div id="kpiGames">-</div></div>
@@ -69,12 +70,8 @@ function parseCSV(text){
   });
 }
 
-document.getElementById('csvFile').addEventListener('change', e=>{
-  const file=e.target.files[0];
-  const reader=new FileReader();
-
-  reader.onload=function(ev){
-    let data=parseCSV(ev.target.result);
+function renderDashboard(csvText){
+    let data=parseCSV(csvText);
 
     data=data.map(r=>({
       ...r,
@@ -250,10 +247,17 @@ document.getElementById('csvFile').addEventListener('change', e=>{
       Damage Avg: ${r.season_damage_avg}
       `;
     });
-  };
+}
 
+document.getElementById('csvFile').addEventListener('change', e=>{
+  const file=e.target.files[0];
+  const reader=new FileReader();
+  reader.onload=ev=>renderDashboard(ev.target.result);
   reader.readAsText(file);
 });
+
+const embedded=JSON.parse(document.getElementById('embedded-data').textContent);
+if(embedded) renderDashboard(embedded);
 </script>
 </body>
 </html>

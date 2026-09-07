@@ -23,6 +23,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
 | [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義。各項目の意味は[docs/config.md](docs/config.md)を参照 |
 | [apex_dashboard.html](apex_dashboard.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
+| `apex_dashboard_latest.html` | `main.py`が`apex_dashboard.html`にCSVデータを埋め込んで自動生成するファイル。生成後にデフォルトブラウザで自動的に開かれる。**個人データを含むため`.gitignore`済み**で、実行のたびに上書きされる(バックアップは作られない) |
 | [version.js](version.js) | `apex_dashboard.html`が表示するバージョン情報(`DASHBOARD_VERSION`/`CSV_SCHEMA_VERSION`)。ダッシュボード本体のソースにバージョンを埋め込まないよう分離している |
 | `input/` | OCR対象のスクリーンショット(`シーズン番号.png`)を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**(`.gitkeep`のみ管理) |
 | `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
@@ -72,20 +73,18 @@ pip install -r requirements.txt
 5. 上記ファイルを以下へ保存: `\ApexStatsOCR\input\`
 6. 2～5の作業を対象シーズン分繰り返す
 
-### 2. CSVデータ作成
+### 2. CSVデータ作成 & ダッシュボード表示
 
 1. コマンドプロンプトを起動
 2. `ApexStatsOCR` へ移動
 3. `python main.py`
 4. `\ApexStatsOCR\output\apex_stats.csv` にデータが作成される
-5. 警告の有無を確認:`\ApexStatsOCR\ocr.log`
+5. 作成したCSVを埋め込んだダッシュボードがデフォルトブラウザで自動的に開く(`apex_dashboard_latest.html`が生成される)
+6. 警告の有無を確認:`\ApexStatsOCR\ocr.log`
 
-### 3. ダッシュボード表示
+自動オープンが不要な場合は`config.json`の`dashboard.auto_open`を`false`にする。その場合や、過去に生成した別のCSVを見たい場合は、`apex_dashboard.html`を直接起動し画面上部のファイル選択ボタンから該当のCSVを選ぶ(従来通りの手動運用)。
 
-1. `apex_dashboard.html` を起動
-2. 画面上部のファイル選択ボタンをクリック
-3. `\ApexStatsOCR\output\apex_stats.csv` を選択
-4. 各種スタッツを表示
+実行のたびに`apex_dashboard_latest.html`は上書きされ、ブラウザには新しいタブが開かれる(既存タブは自動では閉じない)。設定の詳細は[docs/config.md](docs/config.md)を参照。
 
 ## 異常値の自動検出
 
@@ -135,7 +134,7 @@ pytest tests/
 
 - `pytest tests/` が通ることを確認する
 - `config.json` の `regions` を変更した場合は `python tests/fixtures/generate_sample.py` でサンプル画像・期待値を再生成する
-- 個人の成績スクリーンショット・実データのCSVをコミットに含めない(`.gitignore`で除外済みだが念のため)
+- 個人の成績スクリーンショット・実データのCSV・`apex_dashboard_latest.html`(CSVデータを埋め込んだ生成物)をコミットに含めない(`.gitignore`で除外済みだが念のため)
 
 READMEの[スクリーンショット](#スクリーンショット)用のデモデータを更新したい場合は、`python docs/demo-data/generate_demo_stats.py` で架空データを生成できる(実データは使わないこと)。
 
