@@ -2,9 +2,16 @@
 異常値検出ロジック（main.pyの統計的外れ値検知・修正候補算出）のテスト。
 EasyOCRを使わないため高速に実行できる。
 """
+import json
+
 import pandas as pd
 
-from main import detect_statistical_outliers, suggest_correction
+from main import (
+    CORRECTIONS_PLACEHOLDER,
+    _build_corrections_snippet,
+    detect_statistical_outliers,
+    suggest_correction,
+)
 
 
 def test_suggest_correction_finds_divisor_that_fits():
@@ -47,3 +54,49 @@ def test_detect_statistical_outliers_no_suggestion_field_omitted_when_normal():
     anomalies = detect_statistical_outliers(df, ["season_kdr"], threshold=3.5)
 
     assert anomalies == []
+
+
+def test_build_corrections_snippet_uses_suggested_value():
+    anomalies = [
+        {"season": "11", "column": "season_kdr", "value": 112.0,
+         "rule": "statistical_outlier", "suggested_value": 1.12},
+    ]
+
+    snippet = json.loads(_build_corrections_snippet(anomalies))
+
+    assert snippet == {
+        "11": {"season_kdr": {"observed": 112.0, "corrected": 1.12}},
+    }
+
+
+def test_build_corrections_snippet_placeholder_when_no_suggestion():
+    anomalies = [
+        {"season": "20", "column": "season_kdr", "value": 211.0,
+         "rule": "statistical_outlier", "suggested_value": None},
+    ]
+
+    snippet = json.loads(_build_corrections_snippet(anomalies))
+
+    assert snippet["20"]["season_kdr"]["corrected"] == CORRECTIONS_PLACEHOLDER
+
+
+def test_build_corrections_snippet_merges_multiple_columns_same_season():
+    anomalies = [
+        {"season": "29", "column": "season_games", "value": 771.0,
+         "rule": "statistical_outlier", "suggested_value": 77.1},
+        {"season": "29", "column": "season_damage", "value": 344449.0,
+         "rule": "statistical_outlier", "suggested_value": 34444.9},
+    ]
+
+    snippet = json.loads(_build_corrections_snippet(anomalies))
+
+    assert set(snippet["29"].keys()) == {"season_games", "season_damage"}
+
+
+def test_build_corrections_snippet_excludes_non_statistical_rules():
+    anomalies = [
+        {"season": "12", "column": "career_games", "value": "",
+         "rule": "type", "detail": "OCR結果が数値に変換できていません"},
+    ]
+
+    assert _build_corrections_snippet(anomalies) is None

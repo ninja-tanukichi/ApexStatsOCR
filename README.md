@@ -165,9 +165,18 @@ pip install -r requirements.txt
 ```text
 異常値検出: 3件の疑わしい値を検出しました(要目視確認)
   season=9 column=season_kdr value=44.0 rule=statistical_outlier suggested_value=0.44
+統計的外れ値についてcorrections.jsonへ貼り付け可能なJSONを出力します（"要目視確認"の値は元画像を目視確認した上で書き換えてください）:
+{
+  "9": {
+    "season_kdr": {
+      "observed": 44.0,
+      "corrected": 0.44
+    }
+  }
+}
 ```
 
-修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認した上で、正しい値を[異常値の訂正を記録する](#異常値の訂正を記録する)の手順で`corrections.json`に記録すること(`output/`配下のCSVを直接書き換えても、次回実行時のOCR結果で上書きされるため注意。`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は`suggested_value=なし（要目視確認）`とログに記録される。
+修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認した上で、正しい値を[異常値の訂正を記録する](#異常値の訂正を記録する)の手順で`corrections.json`に記録すること(`output/`配下のCSVを直接書き換えても、次回実行時のOCR結果で上書きされるため注意。`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は`suggested_value=なし（要目視確認）`とログに記録され、貼り付け用JSONの`corrected`は`"要目視確認"`というプレースホルダーになる。
 
 修正候補がどう算出されたか(中央値・修正z-scoreの計算結果)や、なぜその値になったのか(OCRの生テキスト・切り出した各項目の変換結果)を調べたい場合は、`config.json`の`log_level`を`"DEBUG"`に変更すると`ocr.log`に詳細が出力される(既定は`INFO`で、この詳細は出力されない)。
 
@@ -177,7 +186,7 @@ pip install -r requirements.txt
 
 ### 書き方
 
-`ocr.log`のWARNING行を見ながら、`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ以下の形式で追記する。
+統計的外れ値(`rule=statistical_outlier`)が1件でも検出された場合、`ocr.log`の最後に`corrections.json`へそのまま貼り付け可能なJSONが出力される。
 
 ```json
 {
@@ -185,13 +194,20 @@ pip install -r requirements.txt
     "season_kdr": {"observed": 44.0, "corrected": 0.44}
   },
   "24": {
-    "season_damage_avg": {"observed": 1431.4, "corrected": 143.14}
+    "season_damage_avg": {"observed": 1431.4, "corrected": "要目視確認"}
   }
 }
 ```
 
+`corrected`が`"要目視確認"`になっている項目は、修正候補が自動算出できなかったもの。必ず元画像を目視確認した上で、正しい数値に書き換えてから`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ貼り付けること(`"要目視確認"`のまま貼り付けると、その項目は文字列として扱われCSVに反映されてしまう)。
+
+- `observed`: 訂正前のOCR生値。この出力をそのまま使えば手で転記する必要はない
+- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補が入っている場合はそのまま使ってよい)
+
+`type`・`monotonicity`ルールの異常値(OCR変換失敗・累積値の減少)は対象外で、このJSONには含まれない。手動で`ocr.log`のWARNING行を見ながら追記する場合は、以下の形式に従う。
+
 - `observed`: `ocr.log`のWARNING行に出ている`value`(訂正前のOCR生値)をそのまま転記する
-- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補をそのまま使う場合は`ocr.log`の`suggested_value=`の値を転記する)
+- `corrected`: 元画像を目視確認した上で決めた正しい値
 
 ### 適用の挙動
 

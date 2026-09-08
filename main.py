@@ -485,6 +485,27 @@ def _format_warning_tail(anomaly):
     return "suggested_value=なし（要目視確認）"
 
 
+CORRECTIONS_PLACEHOLDER = "要目視確認"
+
+
+def _build_corrections_snippet(anomalies):
+    """statistical_outlierの異常値から、corrections.jsonへ貼り付け可能なJSON文字列を組み立てる。
+    修正候補が無い項目はCORRECTIONS_PLACEHOLDERで埋め、貼り付け前に書き換えるよう促す。"""
+    outlier_anomalies = [a for a in anomalies if a["rule"] == "statistical_outlier"]
+    if not outlier_anomalies:
+        return None
+
+    snippet = {}
+    for a in outlier_anomalies:
+        suggestion = a.get("suggested_value")
+        corrected = suggestion if suggestion is not None else CORRECTIONS_PLACEHOLDER
+        snippet.setdefault(a["season"], {})[a["column"]] = {
+            "observed": a["value"],
+            "corrected": corrected,
+        }
+    return json.dumps(snippet, ensure_ascii=False, indent=2)
+
+
 def validate_anomalies(df, regions, anomaly_config, logger):
     value_columns = list(regions.keys())
     ratio_columns = [c for c in value_columns if is_ratio_column(c)]
@@ -516,6 +537,16 @@ def validate_anomalies(df, regions, anomaly_config, logger):
             "  [詳細] season=%s column=%s value=%s rule=%s detail=%s",
             a["season"], a["column"], a["value"], a["rule"], a["detail"],
         )
+
+    snippet = _build_corrections_snippet(anomalies)
+    if snippet is not None:
+        logger.warning(
+            "統計的外れ値についてcorrections.jsonへ貼り付け可能なJSONを出力します"
+            "（\"%s\"の値は元画像を目視確認した上で書き換えてください）:",
+            CORRECTIONS_PLACEHOLDER,
+        )
+        logger.warning("\n%s", snippet)
+
     return anomalies
 
 
