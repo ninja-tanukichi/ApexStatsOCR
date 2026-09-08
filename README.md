@@ -6,62 +6,28 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 
 ## 目次
 
-- [機能概要](#機能概要)
+- [特徴](#特徴)
 - [スクリーンショット](#スクリーンショット)
 - [動作要件](#動作要件)
 - [使い方](#使い方)
 - [トラブルシューティング](#トラブルシューティング)
 - [異常値の自動検出](#異常値の自動検出)
 - [異常値の訂正を記録する](#異常値の訂正を記録する)
+- [ファイル構成](#ファイル構成)
 - [回帰テスト](#回帰テスト)
 - [Contributing](#contributing)
 - [ライセンス](#ライセンス)
 - [変更履歴](#変更履歴)
 
-## 機能概要
+## 特徴
 
-| ファイル | 役割 |
-| --- | --- |
-| [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
-| [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義。各項目の意味は[docs/config.md](docs/config.md)を参照 |
-| [apex_dashboard.html](apex_dashboard.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
-| `apex_dashboard_latest.html` | `main.py`が`apex_dashboard.html`にCSVデータを埋め込んで自動生成するファイル。生成後にデフォルトブラウザで自動的に開かれる。**個人データを含むため`.gitignore`済み**で、実行のたびに上書きされる(バックアップは作られない) |
-| [version.js](version.js) | `apex_dashboard.html`が表示するバージョン情報(`DASHBOARD_VERSION`/`CSV_SCHEMA_VERSION`)。ダッシュボード本体のソースにバージョンを埋め込まないよう分離している |
-| `input/` | OCR対象のスクリーンショット(`シーズン番号.png`)を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**(`.gitkeep`のみ管理) |
-| `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
-| `debug/` | OCR時に切り出した各領域の画像が項目名ごとに保存される(`config.json`の座標調整用)。**列名ごとに1枚のみ保持され、複数画像を一括処理すると最後に処理した画像の分で上書きされるため、特定シーズンの調査には使えない**。**`.gitignore`済み** |
-| `ocr.log` | 実行時のOCRログ(読み取り結果・変換後の値)。**`.gitignore`済み** |
-| `corrections.json` | 異常値の訂正を記録するファイル。初回実行時に無ければ自動生成される。詳細は[異常値の訂正を記録する](#異常値の訂正を記録する)を参照。**個人の統計値を含むため`.gitignore`済み** |
-
-内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
-
-### `regions`とスクリーンショットの対応
-
-`config.json`の`regions`(1920x1080基準の切り出し座標)が、成績画面のどこを指しているかを示す図。番号は下表の列名に対応する(各列の意味は[docs/config.md](docs/config.md)を参照)。
-
-![config.jsonのregionsと成績画面の対応](docs/images/sample-ss-stats-regions.png)
-
-| # | 列名(career_) | # | 列名(season_) |
-| --- | --- | --- | --- |
-| 1 | `games` | 16 | `games` |
-| 2 | `wins` | 17 | `wins` |
-| 3 | `top5` | 18 | `top5` |
-| 4 | `damage` | 19 | `damage` |
-| 5 | `damage_max` | 20 | `damage_max` |
-| 6 | `damage_avg` | 21 | `damage_avg` |
-| 7 | `kills` | 22 | `kills` |
-| 8 | `deaths` | 23 | `deaths` |
-| 9 | `kdr` | 24 | `kdr` |
-| 10 | `max_kills` | 25 | `max_kills` |
-| 11 | `knockdowns` | 26 | `knockdowns` |
-| 12 | `assists` | 27 | `assists` |
-| 13 | `win_streak` | 28 | `win_streak` |
-| 14 | `revives` | 29 | `revives` |
-| 15 | `respawns` | 30 | `respawns` |
+- **非公式APIやEAサーバーへの通信に依存しない**: スクリーンショットの画像処理のみで完結するため、APIの仕様変更による突然の機能停止や、非公式API利用に伴うアカウントリスクがない
+- **完全ローカル動作**: 統計データは手元のPCにのみ保存され、外部サービスへ送信されることはない
+- **サーバー不要のダッシュボード**: 生成されるHTMLは`apex_dashboard_latest.html`をブラウザで開くだけで動作し、ホスティングやビルド手順が不要
 
 ## スクリーンショット
 
-`apex_dashboard.html` にCSVを読み込んだ際の表示例(サンプルデータ。個人の実データではない)。
+`apex_dashboard.html` にCSVを読み込んだ際の表示例(サンプルデータ)。
 
 ![ダッシュボードのKPIカード](docs/images/dashboard-kpi.png)
 
@@ -86,12 +52,16 @@ pip install -r requirements.txt
 
 - インターネット接続が必要(`main.py` 初回実行時、EasyOCRが認識モデルをネット経由でダウンロードするため。社内プロキシ・オフライン環境では失敗する)
 - 1920x1080・英語UIの成績画面を前提(`config.json` の `regions` 座標は解像度に応じてスケーリングされるが、アスペクト比やUI言語が異なると数値を正しく切り出せない場合がある)
-- `input/` に画像を配置してから実行する(空のまま実行してもエラーにはならず、ヘッダーのみの空CSVが生成される。一見動いていないように見えるだけ)
-- バックアップCSVは自動削除されない(実行のたびに`apex_stats_<タイムスタンプ>.csv`が`output/`に増えていくため、不要になったら手動で削除する)
 
 ## 使い方
 
-### 1. 環境を確認する
+### 1. プロジェクトをダウンロードする
+
+1. [GitHubのリポジトリページ](https://github.com/ninja-tanukichi/ApexStatsOCR)を開く
+2. 緑色の「Code」ボタンをクリックし、「Download ZIP」を選択する
+3. ダウンロードした`ApexStatsOCR-main.zip`を右クリック→「すべて展開」で好きな場所に展開する(以降、展開してできたフォルダを`\ApexStatsOCR`として説明する)
+
+### 2. 環境を確認する
 
 1. コマンドプロンプトを起動する
    - スタートメニューで「コマンドプロンプト」または「cmd」と検索して起動する
@@ -123,21 +93,33 @@ pip install -r requirements.txt
 
    うまくいかない場合は[トラブルシューティング](#トラブルシューティング)を参照
 
-### 2. 元画像データを準備
+### 3. 元画像データを準備
 
 1. Apex Legendsを起動する
 2. Apex各シーズン毎のランク成績画面を開く
-3. スクリーンショットを撮影する(例:Print Screenボタン押下。サンプル画像のように、ゲーム画面全体が写るように保存すること)
+3. スクリーンショットを撮影する
+
+   > **注記**: 以下はWindowsでの取得例。Windowsのバージョンやアップデートにより操作方法が変わることがあるため、最新の手順はMicrosoft公式サポートサイトで確認すること。
+
+   | 方法 | 操作 | 保存先 |
+   | --- | --- | --- |
+   | `Win + PrtScn` | 画面全体を撮影する | 自動保存(`ピクチャ\Screenshots`) |
+   | `Win + Alt + PrtScn`(Xbox Game Bar) | アクティブウィンドウ(ゲーム画面)を撮影する。フルスクリーン専有モードで`Win + PrtScn`が効かない場合はこちら | 自動保存(`ビデオ\Captures`) |
+   | `Win + Shift + S`(Snipping Tool) | 範囲・ウィンドウ・全画面を選択して撮影する | クリップボードのみ(要貼り付け・保存) |
+   | `Alt + PrtScn` | アクティブウィンドウのみ撮影する | クリップボードのみ(要貼り付け・保存) |
+
+   - ノートPCなどで`PrtScn`単体のキーが反応しない場合は`Fn`キーを併用する(例:`Win + Fn + PrtScn`)
+   - サンプル画像のように、ゲーム画面全体が写るように撮影すること
 
    ![成績画面の例](docs/images/sample-ss-stats.png)
 
-4. 取得したスクリーンショットのファイル名を`シーズン番号.png` に変更する(例:`15.png`)
+4. 撮影した画像(自動保存の場合は`ピクチャ\Screenshots`または`ビデオ\Captures`フォルダ、クリップボードの場合はペイント等に貼り付けて保存したファイル)のファイル名を`シーズン番号.png` に変更する(例:`15.png`)
 5. 上記ファイルを以下へ保存する: `\ApexStatsOCR\input\`
 6. 2～5の作業を対象シーズン分繰り返す
 
-### 3. CSVデータ作成 & ダッシュボード表示
+### 4. CSVデータ作成 & ダッシュボード表示
 
-1. [手順1](#1-環境を確認する)で開いたコマンドプロンプトで(閉じてしまった場合は再度開いて`ApexStatsOCR`へ移動)、以下を実行する
+1. [手順2](#2-環境を確認する)で開いたコマンドプロンプトで(閉じてしまった場合は再度開いて`ApexStatsOCR`へ移動)、以下を実行する
 
    ```bash
    python main.py
@@ -155,9 +137,12 @@ pip install -r requirements.txt
 
 5. うまくいかない場合は[トラブルシューティング](#トラブルシューティング)を参照
 
-自動オープンが不要な場合は`config.json`の`dashboard.auto_open`を`false`にする。その場合や、過去に生成した別のCSVを見たい場合は、`apex_dashboard.html`を直接起動し画面上部のファイル選択ボタンから該当のCSVを選ぶ(従来通りの手動運用)。
+#### 補足
 
-実行のたびに`apex_dashboard_latest.html`は上書きされ、ブラウザには新しいタブが開かれる(既存タブは自動では閉じない)。設定の詳細は[docs/config.md](docs/config.md)を参照。
+- 自動オープンが不要な場合は`config.json`の`dashboard.auto_open`を`false`にする。その場合や、過去に生成した別のCSVを見たい場合は、`apex_dashboard.html`を直接起動し画面上部のファイル選択ボタンから該当のCSVを選ぶ(従来通りの手動運用)
+- 実行のたびに`apex_dashboard_latest.html`は上書きされ、ブラウザには新しいタブが開かれる(既存タブは自動では閉じない)。設定の詳細は[docs/config.md](docs/config.md)を参照
+- `input/`が空のまま実行してもエラーにはならず、ヘッダーのみの空CSVが生成される(一見動いていないように見えるだけなので注意)
+- 実行のたびに`apex_stats_<タイムスタンプ>.csv`が`output/`に追加され、自動削除はされない。不要になったら手動で削除すること
 
 ## トラブルシューティング
 
@@ -166,8 +151,8 @@ pip install -r requirements.txt
 | コマンドプロンプトで`python`が「認識されていません」と表示される | Pythonがインストールされていないか、PATHが通っていない。Pythonを再インストールし、インストーラで「Add python.exe to PATH」にチェックを入れる |
 | `pip install -r requirements.txt` が失敗する | ネットワーク接続を確認する。社内プロキシ・オフライン環境の場合は接続可能な環境で実行するか、プロキシ設定を行う。それでも失敗する場合はエラーメッセージ末尾の内容を確認する |
 | `python main.py` 実行時に、モデルのダウンロードに関するエラーで止まる | 初回実行時、EasyOCRが認識モデルをインターネット経由でダウンロードするために発生。オフライン・社内プロキシ環境では失敗する。インターネットに接続できる環境で一度実行し、モデルをダウンロードさせる |
-| `apex_stats.csv` が作成されるが中身がヘッダーだけで空 | `input/` フォルダに画像が入っていない。[手順2](#2-元画像データを準備)に従って画像を配置してから再実行する |
-| CSVの数値がおかしい・OCRが正しく読み取れていない | 成績画面の解像度が1920x1080以外、またはUI言語が英語以外の可能性がある。`config.json`の`regions`座標は解像度に応じてスケーリングされるが、アスペクト比やUI言語が異なると正しく切り出せない場合がある |
+| `apex_stats.csv` が作成されるが中身がヘッダーだけで空 | `input/` フォルダに画像が入っていない。[手順3](#3-元画像データを準備)に従って画像を配置してから再実行する |
+| CSVの数値がおかしい・OCRが正しく読み取れていない | 成績画面の解像度が1920x1080以外、またはUI言語が英語以外の可能性がある。`config.json`の`regions`座標([対応表](#regionsとスクリーンショットの対応))は解像度に応じてスケーリングされるが、アスペクト比やUI言語が異なると正しく切り出せない場合がある |
 | その他、上記に当てはまらない不具合 | `\ApexStatsOCR\ocr.log` の内容を添えて[GitHub Issues](https://github.com/ninja-tanukichi/ApexStatsOCR/issues)へ報告してください |
 
 ## 異常値の自動検出
@@ -215,20 +200,47 @@ pip install -r requirements.txt
 ```json
 {
   "9": {
-    "season_kdr": {"observed": 44.0, "corrected": 0.44}
+    "season_kdr": {
+      "observed": 44.0,
+      "corrected": 0.44
+    }
   },
   "24": {
-    "season_damage_avg": {"observed": 1431.4, "corrected": "要目視確認"}
+    "season_damage_avg": {
+      "observed": 1431.4,
+      "corrected": "要目視確認"
+    }
   }
 }
 ```
 
-`corrected`が`"要目視確認"`になっている項目は、修正候補が自動算出できなかったもの。必ず元画像を目視確認した上で、正しい数値に書き換えてから`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ貼り付けること(`"要目視確認"`のまま貼り付けると、その項目は文字列として扱われCSVに反映されてしまう)。
+> ✏️ **編集するのは`"corrected"`の値だけ**。`"corrected"`が`"要目視確認"`になっている行は、元画像を見て正しい数値に書き換えること。`"observed"`はOCRが実際に読み取った生値の記録であり、書き換える必要はない。
 
-`corrections.json`に他のシーズンの訂正が既に記録されている場合、出力されたJSONでファイル全体を置き換えるのではなく、既存の内容にこのJSONのキーをマージすること(ファイル全体を上書きすると、既存の訂正が失われる)。
+`corrections.json`は**メモ帳**などのテキストエディタで開いて編集する(ファイルを右クリック→「プログラムから開く」→「メモ帳」)。
 
-- `observed`: 訂正前のOCR生値。この出力をそのまま使えば手で転記する必要はない
-- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補が入っている場合はそのまま使ってよい)
+- **初回(ファイルの中身が`{}`のみの場合)**: 上記のJSONをそのまま全部貼り付けて上書き保存すればよい
+- **2回目以降(既に他シーズンの訂正が記録されている場合)**: ファイル全体を置き換えると既存の訂正が消えてしまうため、一番外側の`{`と`}`はそのまま残し、既存のシーズンブロックの末尾に**カンマ`,`を追加してから**新しいシーズンのブロックを続けて貼り付ける
+
+  例:既に`"9"`の訂正がある状態で`"24"`を追記する場合
+
+  ```json
+  {
+    "9": {
+      "season_kdr": {
+        "observed": 44.0,
+        "corrected": 0.44
+      }
+    },
+    "24": {
+      "season_damage_avg": {
+        "observed": 1431.4,
+        "corrected": "要目視確認"
+      }
+    }
+  }
+  ```
+
+  カンマを忘れる・`{`と`}`の数が合わないなどで構文が壊れると、次回`python main.py`実行時にエラーで止まる。その場合は`corrections.json`の中身を全て`{}`に書き換えて保存すれば(それまでの訂正は失われるが)クリーンな状態からやり直せる。
 
 `type`・`monotonicity`ルールの異常値(OCR変換失敗・累積値の減少)は対象外で、このJSONには含まれない。手動で`ocr.log`のWARNING行を見ながら追記する場合は、以下の形式に従う。
 
@@ -242,6 +254,47 @@ pip install -r requirements.txt
 - 訂正はCSV出力・異常値検出より前に適用されるため、一度正しく訂正した項目が毎回の異常値検出で再び警告されることはない
 
 現時点では`corrections.json`の作成・更新は手動(テキストエディタでの編集)のみサポートしている。個人の統計値を含むため`.gitignore`済みで、コミットには含まれない。
+
+## ファイル構成
+
+| ファイル | 役割 |
+| --- | --- |
+| [main.py](main.py) | OCRパイプライン本体。`input/` 内の画像を読み込み、`config.json` の座標定義に従って各項目を切り出しOCR、`output/apex_stats.csv` へ出力する |
+| [config.json](config.json) | 画像の基準解像度、入出力パス、OCR設定(言語・許可文字・拡大率など)、各スタッツ項目の切り出し座標(`regions`)、異常値検出の閾値(`anomaly_detection.mad_z_threshold`)を定義。各項目の意味は[docs/config.md](docs/config.md)を参照 |
+| [apex_dashboard.html](apex_dashboard.html) | 生成したCSVをブラウザで読み込み、Plotly.jsでシーズン推移(勝率・KDR・ダメージ等)をグラフ表示するダッシュボード。サーバ不要、ローカルで開くだけで動作 |
+| `apex_dashboard_latest.html` | `main.py`が`apex_dashboard.html`にCSVデータを埋め込んで自動生成するファイル。生成後にデフォルトブラウザで自動的に開かれる。**個人データを含むため`.gitignore`済み**で、実行のたびに上書きされる(バックアップは作られない) |
+| [version.js](version.js) | `apex_dashboard.html`が表示するバージョン情報(`DASHBOARD_VERSION`/`CSV_SCHEMA_VERSION`)。ダッシュボード本体のソースにバージョンを埋め込まないよう分離している |
+| `input/` | OCR対象のスクリーンショット(`シーズン番号.png`)を置くディレクトリ。**個人の成績画像のため`.gitignore`済み**(`.gitkeep`のみ管理) |
+| `output/` | 生成されたCSVの出力先。**個人データのため`.gitignore`済み** |
+| `debug/` | OCR時に切り出した各領域の画像が項目名ごとに保存される(`config.json`の座標調整用)。**列名ごとに1枚のみ保持され、複数画像を一括処理すると最後に処理した画像の分で上書きされるため、特定シーズンの調査には使えない**。**`.gitignore`済み** |
+| `ocr.log` | 実行時のOCRログ(読み取り結果・変換後の値)。**`.gitignore`済み** |
+| `corrections.json` | 異常値の訂正を記録するファイル。初回実行時に無ければ自動生成される。詳細は[異常値の訂正を記録する](#異常値の訂正を記録する)を参照。**個人の統計値を含むため`.gitignore`済み** |
+
+内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
+
+### `regions`とスクリーンショットの対応
+
+`config.json`の`regions`(1920x1080基準の切り出し座標)が、成績画面のどこを指しているかを示す図。番号は下表の列名に対応する(各列の意味は[docs/config.md](docs/config.md)を参照)。
+
+![config.jsonのregionsと成績画面の対応](docs/images/sample-ss-stats-regions.png)
+
+| # | 列名(career_) | # | 列名(season_) |
+| --- | --- | --- | --- |
+| 1 | `games` | 16 | `games` |
+| 2 | `wins` | 17 | `wins` |
+| 3 | `top5` | 18 | `top5` |
+| 4 | `damage` | 19 | `damage` |
+| 5 | `damage_max` | 20 | `damage_max` |
+| 6 | `damage_avg` | 21 | `damage_avg` |
+| 7 | `kills` | 22 | `kills` |
+| 8 | `deaths` | 23 | `deaths` |
+| 9 | `kdr` | 24 | `kdr` |
+| 10 | `max_kills` | 25 | `max_kills` |
+| 11 | `knockdowns` | 26 | `knockdowns` |
+| 12 | `assists` | 27 | `assists` |
+| 13 | `win_streak` | 28 | `win_streak` |
+| 14 | `revives` | 29 | `revives` |
+| 15 | `respawns` | 30 | `respawns` |
 
 ## 回帰テスト
 
