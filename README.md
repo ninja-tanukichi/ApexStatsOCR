@@ -35,6 +35,30 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 
 内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
 
+### `regions`とスクリーンショットの対応
+
+`config.json`の`regions`(1920x1080基準の切り出し座標)が、成績画面のどこを指しているかを示す図。番号は下表の列名に対応する(各列の意味は[docs/config.md](docs/config.md)を参照)。
+
+![config.jsonのregionsと成績画面の対応](docs/images/sample-ss-stats-regions.png)
+
+| # | 列名(career_) | # | 列名(season_) |
+| --- | --- | --- | --- |
+| 1 | `games` | 16 | `games` |
+| 2 | `wins` | 17 | `wins` |
+| 3 | `top5` | 18 | `top5` |
+| 4 | `damage` | 19 | `damage` |
+| 5 | `damage_max` | 20 | `damage_max` |
+| 6 | `damage_avg` | 21 | `damage_avg` |
+| 7 | `kills` | 22 | `kills` |
+| 8 | `deaths` | 23 | `deaths` |
+| 9 | `kdr` | 24 | `kdr` |
+| 10 | `max_kills` | 25 | `max_kills` |
+| 11 | `knockdowns` | 26 | `knockdowns` |
+| 12 | `assists` | 27 | `assists` |
+| 13 | `win_streak` | 28 | `win_streak` |
+| 14 | `revives` | 29 | `revives` |
+| 15 | `respawns` | 30 | `respawns` |
+
 ## スクリーンショット
 
 `apex_dashboard.html` にCSVを読み込んだ際の表示例(サンプルデータ。個人の実データではない)。
