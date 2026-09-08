@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import sys
+import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
@@ -12,6 +13,10 @@ import cv2
 import easyocr
 import numpy as np
 import pandas as pd
+
+# GPU未搭載環境ではPyTorchのDataLoaderがpin_memory無効化の警告を出すが、
+# CPU実行時は想定内の挙動であり実害がないため抑制する
+warnings.filterwarnings("ignore", message=".*pin_memory.*")
 
 
 # cv2.imread/imwriteはWindowsで非ASCII(日本語等)パスを扱えず無音で失敗するため、
