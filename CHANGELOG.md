@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-09-08
+
+### Added
+
+- `main.py`: 手動で訂正した異常値が次回実行の再OCRで毎回消えて再検出されていた問題に対応。
+  `corrections.json`に訂正(記録時のOCR生値と訂正後の値のペア)を保持し、CSV出力・異常値検出の
+  前に自動適用するようにした
+  - 記録時のOCR生値と現在の生値が一致しない場合(画像を差し替えて再OCRした場合など)は訂正を
+    適用せず、最新の画像データを優先してWARNINGを出す
+  - `corrections.json`は初回実行時に無ければ自動生成される。個人の統計値を含むため`.gitignore`済み
+  - `tests/test_corrections.py`を追加
+- `config.json`に`log_level`(既定`INFO`)を追加。`ocr_region`内の項目ごとのOCR詳細ログ(生テキスト・
+  変換値)を`DEBUG`に変更し、必要な時だけ切り替えられるようにした(従来`INFO`固定)
+- GPU未搭載環境で毎回出ていたPyTorchの`pin_memory`に関する無害なUserWarningを抑制
+
+### Documentation
+
+- README/`docs/config.md`/`docs/processing-flow.md`を上記機能に合わせて更新
+
 ## [1.16.0] - 2026-09-07
 
 ### Added
@@ -236,7 +255,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.16.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.0...HEAD
+[1.17.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.13.0...v1.14.0
