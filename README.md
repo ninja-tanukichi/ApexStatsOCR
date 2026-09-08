@@ -10,6 +10,7 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 - [スクリーンショット](#スクリーンショット)
 - [動作要件](#動作要件)
 - [使い方](#使い方)
+- [トラブルシューティング](#トラブルシューティング)
 - [異常値の自動検出](#異常値の自動検出)
 - [異常値の訂正を記録する](#異常値の訂正を記録する)
 - [回帰テスト](#回帰テスト)
@@ -33,6 +34,30 @@ Apex Legendsの「トラッカー(成績)」画面のスクリーンショット
 | `corrections.json` | 異常値の訂正を記録するファイル。初回実行時に無ければ自動生成される。詳細は[異常値の訂正を記録する](#異常値の訂正を記録する)を参照。**個人の統計値を含むため`.gitignore`済み** |
 
 内部の処理フロー(座標スケーリング・OCR後処理の詳細)は[docs/processing-flow.md](docs/processing-flow.md)を参照。
+
+### `regions`とスクリーンショットの対応
+
+`config.json`の`regions`(1920x1080基準の切り出し座標)が、成績画面のどこを指しているかを示す図。番号は下表の列名に対応する(各列の意味は[docs/config.md](docs/config.md)を参照)。
+
+![config.jsonのregionsと成績画面の対応](docs/images/sample-ss-stats-regions.png)
+
+| # | 列名(career_) | # | 列名(season_) |
+| --- | --- | --- | --- |
+| 1 | `games` | 16 | `games` |
+| 2 | `wins` | 17 | `wins` |
+| 3 | `top5` | 18 | `top5` |
+| 4 | `damage` | 19 | `damage` |
+| 5 | `damage_max` | 20 | `damage_max` |
+| 6 | `damage_avg` | 21 | `damage_avg` |
+| 7 | `kills` | 22 | `kills` |
+| 8 | `deaths` | 23 | `deaths` |
+| 9 | `kdr` | 24 | `kdr` |
+| 10 | `max_kills` | 25 | `max_kills` |
+| 11 | `knockdowns` | 26 | `knockdowns` |
+| 12 | `assists` | 27 | `assists` |
+| 13 | `win_streak` | 28 | `win_streak` |
+| 14 | `revives` | 29 | `revives` |
+| 15 | `respawns` | 30 | `respawns` |
 
 ## スクリーンショット
 
@@ -66,27 +91,84 @@ pip install -r requirements.txt
 
 ## 使い方
 
-### 1. 元画像データを準備
+### 1. 環境を確認する
 
-1. Apex Legendsを起動
-2. Apex各シーズン毎の成績画面を開く
-3. スクリーンショットを撮影(例:Print Screenボタン押下)
+1. コマンドプロンプトを起動する
+   - スタートメニューで「コマンドプロンプト」または「cmd」と検索して起動する
+   - もしくは `Win + R` キーを押し、`cmd` と入力してEnter
+
+   ![コマンドプロンプトの例](docs/images/sample-prompt.png)
+
+2. `cd` コマンドで `ApexStatsOCR` フォルダへ移動する(保存場所が異なる場合は読み替える)
+
+   ```bash
+   cd \ApexStatsOCR
+   ```
+
+3. Pythonがインストールされているか確認する
+
+   ```bash
+   python --version
+   ```
+
+   バージョンが表示されない場合はPythonが未インストール。[Python公式サイト](https://www.python.org/downloads/)からPython 3.10以上をインストールし、インストーラの「Add python.exe to PATH」にチェックを入れる
+
+4. 依存パッケージをインストールする
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+   既に別の用途でPython環境を使っている場合は、依存パッケージの衝突を避けるため仮想環境(venv)の利用を推奨(詳細は[動作要件](#動作要件)を参照)
+
+   うまくいかない場合は[トラブルシューティング](#トラブルシューティング)を参照
+
+### 2. 元画像データを準備
+
+1. Apex Legendsを起動する
+2. Apex各シーズン毎のランク成績画面を開く
+3. スクリーンショットを撮影する(例:Print Screenボタン押下。サンプル画像のように、ゲーム画面全体が写るように保存すること)
+
+   ![成績画面の例](docs/images/sample-ss-stats.png)
+
 4. 取得したスクリーンショットのファイル名を`シーズン番号.png` に変更する(例:`15.png`)
-5. 上記ファイルを以下へ保存: `\ApexStatsOCR\input\`
+5. 上記ファイルを以下へ保存する: `\ApexStatsOCR\input\`
 6. 2～5の作業を対象シーズン分繰り返す
 
-### 2. CSVデータ作成 & ダッシュボード表示
+### 3. CSVデータ作成 & ダッシュボード表示
 
-1. コマンドプロンプトを起動
-2. `ApexStatsOCR` へ移動
-3. `python main.py`
-4. `\ApexStatsOCR\output\apex_stats.csv` にデータが作成される
-5. 作成したCSVを埋め込んだダッシュボードがデフォルトブラウザで自動的に開く(`apex_dashboard_latest.html`が生成される)
-6. 警告の有無を確認:`\ApexStatsOCR\ocr.log`
+1. [手順1](#1-環境を確認する)で開いたコマンドプロンプトで(閉じてしまった場合は再度開いて`ApexStatsOCR`へ移動)、以下を実行する
+
+   ```bash
+   python main.py
+   ```
+
+2. `\ApexStatsOCR\output\apex_stats.csv` にデータが作成される
+3. 作成したCSVを埋め込んだダッシュボードがデフォルトブラウザで自動的に開く(`apex_dashboard_latest.html`が生成される)
+4. `\ApexStatsOCR\ocr.log` を開き、`WARNING`の行が無いか確認する
+
+   ```text
+   2026-09-08 21:00:00 WARNING 異常値検出: 3件の疑わしい値を検出しました（要目視確認）
+   ```
+
+   問題が無ければ`異常値検出: 問題ありません`とだけ記録される。`WARNING`があった場合は、該当シーズンの元画像を目視確認した上で、必要なら訂正を記録する(詳細は[異常値の自動検出](#異常値の自動検出)・[異常値の訂正を記録する](#異常値の訂正を記録する)を参照)
+
+5. うまくいかない場合は[トラブルシューティング](#トラブルシューティング)を参照
 
 自動オープンが不要な場合は`config.json`の`dashboard.auto_open`を`false`にする。その場合や、過去に生成した別のCSVを見たい場合は、`apex_dashboard.html`を直接起動し画面上部のファイル選択ボタンから該当のCSVを選ぶ(従来通りの手動運用)。
 
 実行のたびに`apex_dashboard_latest.html`は上書きされ、ブラウザには新しいタブが開かれる(既存タブは自動では閉じない)。設定の詳細は[docs/config.md](docs/config.md)を参照。
+
+## トラブルシューティング
+
+| 症状 | 原因・対処法 |
+| --- | --- |
+| コマンドプロンプトで`python`が「認識されていません」と表示される | Pythonがインストールされていないか、PATHが通っていない。Pythonを再インストールし、インストーラで「Add python.exe to PATH」にチェックを入れる |
+| `pip install -r requirements.txt` が失敗する | ネットワーク接続を確認する。社内プロキシ・オフライン環境の場合は接続可能な環境で実行するか、プロキシ設定を行う。それでも失敗する場合はエラーメッセージ末尾の内容を確認する |
+| `python main.py` 実行時に、モデルのダウンロードに関するエラーで止まる | 初回実行時、EasyOCRが認識モデルをインターネット経由でダウンロードするために発生。オフライン・社内プロキシ環境では失敗する。インターネットに接続できる環境で一度実行し、モデルをダウンロードさせる |
+| `apex_stats.csv` が作成されるが中身がヘッダーだけで空 | `input/` フォルダに画像が入っていない。[手順2](#2-元画像データを準備)に従って画像を配置してから再実行する |
+| CSVの数値がおかしい・OCRが正しく読み取れていない | 成績画面の解像度が1920x1080以外、またはUI言語が英語以外の可能性がある。`config.json`の`regions`座標は解像度に応じてスケーリングされるが、アスペクト比やUI言語が異なると正しく切り出せない場合がある |
+| その他、上記に当てはまらない不具合 | `\ApexStatsOCR\ocr.log` の内容を添えて[GitHub Issues](https://github.com/ninja-tanukichi/ApexStatsOCR/issues)へ報告してください |
 
 ## 異常値の自動検出
 
@@ -106,12 +188,21 @@ pip install -r requirements.txt
 
 ```text
 異常値検出: 3件の疑わしい値を検出しました(要目視確認)
-  season=9 column=season_kdr value=44.0 rule=statistical_outlier detail=中央値=0.68から外れ値(修正z-score=324.70) / 修正候補: 0.44
+  season=9 column=season_kdr value=44.0 rule=statistical_outlier suggested_value=0.44
+統計的外れ値についてcorrections.jsonへ貼り付け可能なJSONを出力します（"要目視確認"の値は元画像を目視確認した上で書き換えてください）:
+{
+  "9": {
+    "season_kdr": {
+      "observed": 44.0,
+      "corrected": 0.44
+    }
+  }
+}
 ```
 
-修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認した上で、正しい値を[異常値の訂正を記録する](#異常値の訂正を記録する)の手順で`corrections.json`に記録すること(`output/`配下のCSVを直接書き換えても、次回実行時のOCR結果で上書きされるため注意。`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は候補なしとしてログに記録される。
+修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認した上で、正しい値を[異常値の訂正を記録する](#異常値の訂正を記録する)の手順で`corrections.json`に記録すること(`output/`配下のCSVを直接書き換えても、次回実行時のOCR結果で上書きされるため注意。`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は`suggested_value=なし（要目視確認）`とログに記録され、貼り付け用JSONの`corrected`は`"要目視確認"`というプレースホルダーになる。
 
-なぜその値になったのか(OCRの生テキスト・切り出した各項目の変換結果)を調べたい場合は、`config.json`の`log_level`を`"DEBUG"`に変更すると`ocr.log`に詳細が出力される(既定は`INFO`で、この詳細は出力されない)。
+修正候補がどう算出されたか(中央値・修正z-scoreの計算結果)や、なぜその値になったのか(OCRの生テキスト・切り出した各項目の変換結果)を調べたい場合は、`config.json`の`log_level`を`"DEBUG"`に変更すると`ocr.log`に詳細が出力される(既定は`INFO`で、この詳細は出力されない)。
 
 ## 異常値の訂正を記録する
 
@@ -119,7 +210,7 @@ pip install -r requirements.txt
 
 ### 書き方
 
-`ocr.log`のWARNING行を見ながら、`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ以下の形式で追記する。
+統計的外れ値(`rule=statistical_outlier`)が1件でも検出された場合、`ocr.log`の最後に`corrections.json`へそのまま貼り付け可能なJSONが出力される。
 
 ```json
 {
@@ -127,13 +218,22 @@ pip install -r requirements.txt
     "season_kdr": {"observed": 44.0, "corrected": 0.44}
   },
   "24": {
-    "season_damage_avg": {"observed": 1431.4, "corrected": 143.14}
+    "season_damage_avg": {"observed": 1431.4, "corrected": "要目視確認"}
   }
 }
 ```
 
+`corrected`が`"要目視確認"`になっている項目は、修正候補が自動算出できなかったもの。必ず元画像を目視確認した上で、正しい数値に書き換えてから`corrections.json`(初回実行時に無ければ自動生成される空の`{}`)へ貼り付けること(`"要目視確認"`のまま貼り付けると、その項目は文字列として扱われCSVに反映されてしまう)。
+
+`corrections.json`に他のシーズンの訂正が既に記録されている場合、出力されたJSONでファイル全体を置き換えるのではなく、既存の内容にこのJSONのキーをマージすること(ファイル全体を上書きすると、既存の訂正が失われる)。
+
+- `observed`: 訂正前のOCR生値。この出力をそのまま使えば手で転記する必要はない
+- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補が入っている場合はそのまま使ってよい)
+
+`type`・`monotonicity`ルールの異常値(OCR変換失敗・累積値の減少)は対象外で、このJSONには含まれない。手動で`ocr.log`のWARNING行を見ながら追記する場合は、以下の形式に従う。
+
 - `observed`: `ocr.log`のWARNING行に出ている`value`(訂正前のOCR生値)をそのまま転記する
-- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補をそのまま使う場合は`ocr.log`の「修正候補: …」の値を転記する)
+- `corrected`: 元画像を目視確認した上で決めた正しい値
 
 ### 適用の挙動
 
