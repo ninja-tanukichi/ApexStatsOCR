@@ -475,6 +475,16 @@ def detect_statistical_outliers(df, columns, threshold):
     return anomalies
 
 
+def _summarize_detail(anomaly):
+    """WARNING表示用の簡潔な説明。統計的外れ値検知の中央値・z-score計算はDEBUGログのみで確認する。"""
+    if anomaly["rule"] != "statistical_outlier":
+        return anomaly["detail"]
+    suggestion = anomaly.get("suggested_value")
+    if suggestion is not None:
+        return f"修正候補: {suggestion:g}"
+    return "元画像を目視確認してください（修正候補なし）"
+
+
 def validate_anomalies(df, regions, anomaly_config, logger):
     value_columns = list(regions.keys())
     ratio_columns = [c for c in value_columns if is_ratio_column(c)]
@@ -500,6 +510,10 @@ def validate_anomalies(df, regions, anomaly_config, logger):
     for a in anomalies:
         logger.warning(
             "  season=%s column=%s value=%s rule=%s detail=%s",
+            a["season"], a["column"], a["value"], a["rule"], _summarize_detail(a),
+        )
+        logger.debug(
+            "  [詳細] season=%s column=%s value=%s rule=%s detail=%s",
             a["season"], a["column"], a["value"], a["rule"], a["detail"],
         )
     return anomalies
