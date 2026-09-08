@@ -101,14 +101,14 @@ pip install -r requirements.txt
 
 ### 2. 元画像データを準備
 
-1. Apex Legendsを起動
+1. Apex Legendsを起動する
 2. Apex各シーズン毎のランク成績画面を開く
+3. スクリーンショットを撮影する(例:Print Screenボタン押下。サンプル画像のように、ゲーム画面全体が写るように保存すること)
 
    ![成績画面の例](docs/images/sample-ss-stats.png)
 
-3. スクリーンショットを撮影(例:Print Screenボタン押下)
 4. 取得したスクリーンショットのファイル名を`シーズン番号.png` に変更する(例:`15.png`)
-5. 上記ファイルを以下へ保存: `\ApexStatsOCR\input\`
+5. 上記ファイルを以下へ保存する: `\ApexStatsOCR\input\`
 6. 2～5の作業を対象シーズン分繰り返す
 
 ### 3. CSVデータ作成 & ダッシュボード表示
