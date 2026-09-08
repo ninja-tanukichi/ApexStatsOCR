@@ -481,7 +481,7 @@ def _summarize_detail(anomaly):
         return anomaly["detail"]
     suggestion = anomaly.get("suggested_value")
     if suggestion is not None:
-        return f"修正候補: {suggestion:g}"
+        return f"修正候補は{suggestion:g}です"
     return "元画像を目視確認してください（修正候補なし）"
 
 

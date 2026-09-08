@@ -102,7 +102,7 @@ pip install -r requirements.txt
 ### 2. 元画像データを準備
 
 1. Apex Legendsを起動
-2. Apex各シーズン毎の成績画面を開く
+2. Apex各シーズン毎のランク成績画面を開く
 
    ![成績画面の例](docs/images/sample-ss-stats.png)
 
@@ -164,7 +164,7 @@ pip install -r requirements.txt
 
 ```text
 異常値検出: 3件の疑わしい値を検出しました(要目視確認)
-  season=9 column=season_kdr value=44.0 rule=statistical_outlier detail=修正候補: 0.44
+  season=9 column=season_kdr value=44.0 rule=statistical_outlier detail=修正候補は0.44です
 ```
 
 修正候補はあくまで統計的な推測であり、正しさは保証されない。**CSVを自動修正することはない**ため、必ず `\ApexStatsOCR\input\シーズン番号.png` で元画像を目視確認した上で、正しい値を[異常値の訂正を記録する](#異常値の訂正を記録する)の手順で`corrections.json`に記録すること(`output/`配下のCSVを直接書き換えても、次回実行時のOCR結果で上書きされるため注意。`debug/<列名>.png` は最後に処理した画像の分しか残らないため、特定シーズンの確認には使えない)。妥当な候補が見つからない場合は「元画像を目視確認してください(修正候補なし)」とログに記録される。
@@ -191,7 +191,7 @@ pip install -r requirements.txt
 ```
 
 - `observed`: `ocr.log`のWARNING行に出ている`value`(訂正前のOCR生値)をそのまま転記する
-- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補をそのまま使う場合は`ocr.log`の「修正候補: …」の値を転記する)
+- `corrected`: 元画像を目視確認した上で決めた正しい値(修正候補をそのまま使う場合は`ocr.log`の「修正候補は…です」の値を転記する)
 
 ### 適用の挙動
 
