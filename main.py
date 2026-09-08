@@ -475,14 +475,14 @@ def detect_statistical_outliers(df, columns, threshold):
     return anomalies
 
 
-def _summarize_detail(anomaly):
-    """WARNING表示用の簡潔な説明。統計的外れ値検知の中央値・z-score計算はDEBUGログのみで確認する。"""
+def _format_warning_tail(anomaly):
+    """WARNING行の末尾(key=value形式)。統計的外れ値検知の中央値・z-score計算はDEBUGログのみで確認する。"""
     if anomaly["rule"] != "statistical_outlier":
-        return anomaly["detail"]
+        return f"detail={anomaly['detail']}"
     suggestion = anomaly.get("suggested_value")
     if suggestion is not None:
-        return f"修正候補は{suggestion:g}です"
-    return "元画像を目視確認してください（修正候補なし）"
+        return f"suggested_value={suggestion:g}"
+    return "suggested_value=なし（要目視確認）"
 
 
 def validate_anomalies(df, regions, anomaly_config, logger):
@@ -509,8 +509,8 @@ def validate_anomalies(df, regions, anomaly_config, logger):
     logger.warning("異常値検出: %d件の疑わしい値を検出しました（要目視確認）", len(anomalies))
     for a in anomalies:
         logger.warning(
-            "  season=%s column=%s value=%s rule=%s detail=%s",
-            a["season"], a["column"], a["value"], a["rule"], _summarize_detail(a),
+            "  season=%s column=%s value=%s rule=%s %s",
+            a["season"], a["column"], a["value"], a["rule"], _format_warning_tail(a),
         )
         logger.debug(
             "  [詳細] season=%s column=%s value=%s rule=%s detail=%s",
