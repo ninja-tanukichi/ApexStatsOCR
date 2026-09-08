@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import sys
+import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
@@ -12,6 +13,10 @@ import cv2
 import easyocr
 import numpy as np
 import pandas as pd
+
+# GPU未搭載環境ではPyTorchのDataLoaderがpin_memory無効化の警告を出すが、
+# CPU実行時は想定内の挙動であり実害がないため抑制する
+warnings.filterwarnings("ignore", message=".*pin_memory.*")
 
 
 # cv2.imread/imwriteはWindowsで非ASCII(日本語等)パスを扱えず無音で失敗するため、
@@ -29,9 +34,9 @@ def imwrite_unicode(path, img):
     return ok
 
 
-def init_logger(log_file="ocr.log"):
+def init_logger(log_file="ocr.log", log_level="INFO"):
     logger = logging.getLogger("ApexStatsOCR")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
 
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s %(message)s",
@@ -224,10 +229,10 @@ def ocr_region(img, rect, scale_x, scale_y, name, reader, ocr_config, logger):
         allowlist=ocr_config.get("allowlist", "0123456789.,/KM"),
     )
 
-    logger.info(result)
+    logger.debug(result)
     text = merge_decimal(result)
     value = convert_value(text)
-    logger.info("%s %-15s OCR='%s' VALUE='%s'", name, "", text, value)
+    logger.debug("%s %-15s OCR='%s' VALUE='%s'", name, "", text, value)
     return value
 
 
@@ -291,6 +296,54 @@ def backup_existing_file(path, logger):
     return backup_path
 
 
+# =========================
+# 訂正値の適用
+# =========================
+# 一度目視確認して訂正した値を再実行のたびに手動で直さなくて済むように、
+# corrections.jsonへ記録した訂正を自動適用する。ただし画像を差し替えて
+# 再OCRした場合は、記録時のOCR生値(observed)と現在の生値が一致しなくなるため
+# 訂正を適用せず、最新の画像データを優先する
+def load_corrections(path, logger):
+    if not os.path.exists(path):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({}, f, ensure_ascii=False, indent=2)
+        logger.info("corrections.jsonが見つからないため新規作成しました: %s", path)
+        return {}
+
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def apply_corrections(rows, corrections, logger):
+    for row in rows:
+        season_corrections = corrections.get(row.get("season"))
+        if not season_corrections:
+            continue
+
+        for column, entry in season_corrections.items():
+            if column not in row:
+                continue
+
+            observed = entry.get("observed")
+            corrected = entry.get("corrected")
+            current = row[column]
+
+            if current == observed:
+                row[column] = corrected
+                logger.info(
+                    "訂正を適用しました season=%s column=%s %s -> %s",
+                    row["season"], column, observed, corrected,
+                )
+            else:
+                logger.warning(
+                    "訂正データが古い可能性があります(画像が更新された？) "
+                    "season=%s column=%s 記録時の値=%s 現在値=%s → 訂正は適用されませんでした",
+                    row["season"], column, observed, current,
+                )
+
+    return rows
+
+
 def save_csv(rows, output_file, columns, logger):
     os.makedirs(os.path.dirname(output_file) or ".", exist_ok=True)
     backup_existing_file(output_file, logger)
@@ -298,7 +351,7 @@ def save_csv(rows, output_file, columns, logger):
     df = df.reindex(columns=columns)
     df.to_csv(output_file, index=False, encoding="utf-8-sig")
     logger.info("\nCSV出力完了 %s", output_file)
-    logger.info("\n%s", df)
+    logger.debug("\n%s", df)
     return df
 
 
@@ -488,7 +541,7 @@ def open_dashboard(csv_path, dashboard_config, logger):
 
 def main():
     config = load_config("config.json")
-    logger = init_logger(config.get("log_file", "ocr.log"))
+    logger = init_logger(config.get("log_file", "ocr.log"), config.get("log_level", "INFO"))
 
     base_width = config["base_width"]
     base_height = config["base_height"]
@@ -509,6 +562,10 @@ def main():
         row = process_image(path, reader, regions, base_width, base_height, ocr_config, logger)
         if row is not None:
             rows.append(row)
+
+    corrections_file = config.get("corrections_file", "corrections.json")
+    corrections = load_corrections(corrections_file, logger)
+    apply_corrections(rows, corrections, logger)
 
     columns = ["season"] + list(regions.keys())
     df = save_csv(rows, output_file, columns, logger)

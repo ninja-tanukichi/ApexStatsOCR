@@ -7,6 +7,7 @@
 /debug_*.png
 ocr.log
 /apex_dashboard_latest.html
+/corrections.json
 
 # Python
 __pycache__/
