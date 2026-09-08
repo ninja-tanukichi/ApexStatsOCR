@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.1] - 2026-09-08
+
+### Fixed
+
+- README: 「検出された異常値は自動修正されない」の意味(ツール自身の統計的推測でCSVを書き換えない、という
+  意味)を明示し、[異常値の訂正を記録する](README.md#異常値の訂正を記録する)へリンク
+- README: 「修正候補の提示」節の「手動でCSVを修正すること」という指示を、`corrections.json`への記録手順に
+  修正(`output/`配下のCSVを直接編集しても次回実行時のOCR結果で上書きされるため、この指示は
+  `corrections.json`導入(`v1.17.0`)前の古いワークフローを指す矛盾した記述になっていた)
+
+### Added
+
+- `.gitignore`: `.claude/`/`.cursor/`/`.codex/`を追加し、他のAIコーディングエージェントを使う
+  コントリビューターのローカル状態が誤ってコミットされないようにした
+
 ## [1.17.0] - 2026-09-08
 
 ### Added
@@ -255,7 +270,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.0...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.1...HEAD
+[1.17.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.14.0...v1.15.0
