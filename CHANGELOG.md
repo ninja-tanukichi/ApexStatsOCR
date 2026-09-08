@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-09-09
+
+### Added
+
+- 異常値検出時、`corrections.json`へそのまま貼り付け可能なJSONスニペットを`ocr.log`末尾に出力するように
+  した(統計的外れ値が1件以上検出された場合のみ)
+  - 統計的外れ値のWARNING行から中央値・修正z-scoreの計算詳細をDEBUGログ限定に変更(要約
+    (`suggested_value=`)のみWARNINGに残す)
+  - 同一season+columnで複数の異常値が検出された場合、貼り付け用JSONには最後の1件のみ反映される旨を
+    WARNINGで通知するようにした
+
+### Documentation
+
+- READMEの「使い方」を再構成し、コマンドプロンプト操作に不慣れな読者向けに以下を追加
+  - 環境確認手順(Pythonインストール確認・`requirements.txt`インストール)を使い方の冒頭に追加
+  - コマンドプロンプトの起動方法・ディレクトリ移動方法を明文化
+  - 失敗時のトラブルシューティング章を新設
+  - 成績画面・コマンドプロンプトのスクリーンショットを追加(個人情報は加工済み)
+  - `config.json`の`regions`座標と成績画面の対応を示す注釈画像を追加
+
 ## [1.17.1] - 2026-09-08
 
 ### Fixed
@@ -270,7 +290,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 過去コミット履歴に含まれていた個人データ（成績画像・CSV・OCRログ）を履歴ごと削除し、公開リポジトリとして再構成
 
-[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.1...HEAD
+[Unreleased]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.18.0...HEAD
+[1.18.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.1...v1.18.0
 [1.17.1]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.16.0...v1.17.0
 [1.16.0]: https://github.com/ninja-tanukichi/ApexStatsOCR/compare/v1.15.0...v1.16.0
