@@ -475,31 +475,40 @@ def detect_statistical_outliers(df, columns, threshold):
     return anomalies
 
 
+CORRECTIONS_PLACEHOLDER = "要目視確認"
+
+
 def _format_warning_tail(anomaly):
-    """WARNING行の末尾(key=value形式)。統計的外れ値検知の中央値・z-score計算はDEBUGログのみで確認する。"""
+    """WARNING行の末尾(key=value形式)。統計的外れ値検知の中央値・z-score計算はDEBUGログのみで確認する。
+    suggested_valueはstr()で表示する(:gは有効桁6桁に丸められ、貼り付け用JSON側の値とズレるため)。"""
     if anomaly["rule"] != "statistical_outlier":
         return f"detail={anomaly['detail']}"
     suggestion = anomaly.get("suggested_value")
     if suggestion is not None:
-        return f"suggested_value={suggestion:g}"
-    return "suggested_value=なし（要目視確認）"
+        return f"suggested_value={suggestion}"
+    return f"suggested_value=なし（{CORRECTIONS_PLACEHOLDER}）"
 
 
-CORRECTIONS_PLACEHOLDER = "要目視確認"
-
-
-def _build_corrections_snippet(anomalies):
+def _build_corrections_snippet(anomalies, logger):
     """statistical_outlierの異常値から、corrections.jsonへ貼り付け可能なJSON文字列を組み立てる。
-    修正候補が無い項目はCORRECTIONS_PLACEHOLDERで埋め、貼り付け前に書き換えるよう促す。"""
+    修正候補が無い項目はCORRECTIONS_PLACEHOLDERで埋め、貼り付け前に書き換えるよう促す。
+    同一season+columnが複数ある場合はcorrections.jsonのスキーマ上どのみち1件しか表現できないため、
+    後勝ちで上書きしつつWARNINGで知らせる。"""
     outlier_anomalies = [a for a in anomalies if a["rule"] == "statistical_outlier"]
     if not outlier_anomalies:
         return None
 
     snippet = {}
     for a in outlier_anomalies:
+        season_entry = snippet.setdefault(a["season"], {})
+        if a["column"] in season_entry:
+            logger.warning(
+                "  season=%s column=%s の異常値が複数検出されたため、貼り付け用JSONには最後の1件のみ反映されています。手動で確認してください",
+                a["season"], a["column"],
+            )
         suggestion = a.get("suggested_value")
         corrected = suggestion if suggestion is not None else CORRECTIONS_PLACEHOLDER
-        snippet.setdefault(a["season"], {})[a["column"]] = {
+        season_entry[a["column"]] = {
             "observed": a["value"],
             "corrected": corrected,
         }
@@ -533,12 +542,13 @@ def validate_anomalies(df, regions, anomaly_config, logger):
             "  season=%s column=%s value=%s rule=%s %s",
             a["season"], a["column"], a["value"], a["rule"], _format_warning_tail(a),
         )
-        logger.debug(
-            "  [詳細] season=%s column=%s value=%s rule=%s detail=%s",
-            a["season"], a["column"], a["value"], a["rule"], a["detail"],
-        )
+        if a["rule"] == "statistical_outlier":
+            logger.debug(
+                "  [詳細] season=%s column=%s value=%s rule=%s detail=%s",
+                a["season"], a["column"], a["value"], a["rule"], a["detail"],
+            )
 
-    snippet = _build_corrections_snippet(anomalies)
+    snippet = _build_corrections_snippet(anomalies, logger)
     if snippet is not None:
         logger.warning(
             "統計的外れ値についてcorrections.jsonへ貼り付け可能なJSONを出力します"
