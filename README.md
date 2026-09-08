@@ -121,7 +121,14 @@ pip install -r requirements.txt
 
 2. `\ApexStatsOCR\output\apex_stats.csv` にデータが作成される
 3. 作成したCSVを埋め込んだダッシュボードがデフォルトブラウザで自動的に開く(`apex_dashboard_latest.html`が生成される)
-4. 警告の有無を確認:`\ApexStatsOCR\ocr.log`
+4. `\ApexStatsOCR\ocr.log` を開き、`WARNING`の行が無いか確認する
+
+   ```text
+   2026-09-08 21:00:00 WARNING 異常値検出: 3件の疑わしい値を検出しました（要目視確認）
+   ```
+
+   問題が無ければ`異常値検出: 問題ありません`とだけ記録される。`WARNING`があった場合は、該当シーズンの元画像を目視確認した上で、必要なら訂正を記録する(詳細は[異常値の自動検出](#異常値の自動検出)・[異常値の訂正を記録する](#異常値の訂正を記録する)を参照)
+
 5. うまくいかない場合は[トラブルシューティング](#トラブルシューティング)を参照
 
 自動オープンが不要な場合は`config.json`の`dashboard.auto_open`を`false`にする。その場合や、過去に生成した別のCSVを見たい場合は、`apex_dashboard.html`を直接起動し画面上部のファイル選択ボタンから該当のCSVを選ぶ(従来通りの手動運用)。
